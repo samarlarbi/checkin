@@ -1,4 +1,5 @@
 import 'package:checkin/screens/ScanScreen.dart';
+import 'package:checkin/widgets/navbar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,6 +13,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/scan': (context) => Scanner_screen(),
+      },
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
     );
@@ -31,26 +35,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: page_index,
-          onTap: (index) {
-            setState(() {
-              page_index = index;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          ],
-        ),
-        body: page_index == 0
-            ? Scanner_screen()
-            : page_index == 1
-                ? const Center(
-                    child: Text('Search'),
-                  )
-                : Image.network(
-                    'https://budgetcoinz.com/wp-content/uploads/2022/11/QR-Code-Generator.png'));
+        body: Center(
+      child: Navbar(
+        Screen0: Scanner_screen(),
+        Screen1: Text("s 1 "),
+        Screen2: Text("s , 2 "),
+      ),
+    ));
   }
 }
