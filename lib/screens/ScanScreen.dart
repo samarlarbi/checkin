@@ -13,7 +13,16 @@ class Scanner_screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Background,
       appBar: AppBar(
-        title: Text("Scan QR code"),
+        actions: [
+          IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.more_vert_outlined,
+                  color: const Color.fromARGB(255, 69, 69, 69)))
+        ],
+        title: Text(
+          "Scan QR code",
+          style: TextStyle(color: const Color.fromARGB(255, 69, 69, 69)),
+        ),
         centerTitle: true,
         backgroundColor: Background,
         elevation: 0,
@@ -27,7 +36,8 @@ class Scanner_screen extends StatelessWidget {
               Stack(alignment: Alignment.center, children: [
                 Container(
                   child: Blob.fromID(
-                    styles: BlobStyles(color: Primary.withOpacity(0.2)),
+                    styles:
+                        BlobStyles(color: Color.fromARGB(255, 204, 228, 228)),
                     size: 350,
                     id: ['10-4-0952400'],
                     controller: blobCtrl,
@@ -39,6 +49,18 @@ class Scanner_screen extends StatelessWidget {
               ]),
               MyButton(
                 title: "scan QR code",
+                onpressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Scaffold(
+                              appBar: AppBar(
+                                  leading: IconButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      icon: Icon(Icons.arrow_back))))));
+                },
                 color: Primary,
                 width: MediaQuery.of(context).size.width * 0.7,
               ),
@@ -46,7 +68,7 @@ class Scanner_screen extends StatelessWidget {
                 height: 10,
               ),
               MyButton(
-                title: "scan QR code",
+                title: "Enter code",
                 color: light,
                 width: MediaQuery.of(context).size.width * 0.7,
               )

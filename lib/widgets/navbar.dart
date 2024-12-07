@@ -25,7 +25,6 @@ class _NavbarState extends State<Navbar> {
   Widget build(BuildContext context) {
     return CurvedNavBar(
       actionButton: CurvedActionBar(
-
         activeIcon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -50,10 +49,9 @@ class _NavbarState extends State<Navbar> {
             color: Colors.white,
           ),
         ),
-        text: "scanner",
+        text: "",
       ),
       activeColor: Secondary,
-
       navBarBackgroundColor: Colors.white,
       inActiveColor: Colors.black45,
       appBarItems: [
@@ -81,12 +79,11 @@ class _NavbarState extends State<Navbar> {
           text: 'checked',
         ),
       ],
+      actionBarView: widget.Screen0,
       bodyItems: [
         widget.Screen1,
         widget.Screen2,
       ],
-      actionBarView: widget.Screen0,
-
     );
   }
 }
