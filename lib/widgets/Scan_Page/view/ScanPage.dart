@@ -1,6 +1,7 @@
 import 'package:blobs/blobs.dart';
 import 'package:checkin/colors.dart';
-import 'package:checkin/widgets/myButton.dart';
+import 'package:checkin/utils/myButton.dart';
+import 'package:checkin/widgets/Scan_Page/scanner.dart';
 import 'package:flutter/material.dart';
 
 class Scanner_screen extends StatelessWidget {
@@ -50,16 +51,8 @@ class Scanner_screen extends StatelessWidget {
               MyButton(
                 title: "scan QR code",
                 onpressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                              appBar: AppBar(
-                                  leading: IconButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      icon: Icon(Icons.arrow_back))))));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Scanner()));
                 },
                 color: Primary,
                 width: MediaQuery.of(context).size.width * 0.7,

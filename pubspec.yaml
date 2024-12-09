@@ -38,6 +38,8 @@ dependencies:
   blobs: ^2.0.0
   persistent_bottom_nav_bar_v2: ^4.2.8
   curved_nav_bar: ^0.0.2
+  flutter_barcode_scanner: ^2.0.0
+
 
 dev_dependencies:
   flutter_test:

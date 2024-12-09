@@ -1,5 +1,5 @@
-import 'package:checkin/screens/ScanScreen.dart';
-import 'package:checkin/widgets/navbar.dart';
+import 'package:checkin/widgets/Scan_Page/view/ScanPage.dart';
+import 'package:checkin/utils/navbar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
