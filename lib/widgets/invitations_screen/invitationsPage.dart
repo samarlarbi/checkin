@@ -32,7 +32,7 @@ class _InvitationsState extends State<Invitations> {
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
           children: [
             SearchField(),

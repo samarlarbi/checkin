@@ -27,25 +27,29 @@ class _SearchFieldState extends State<SearchField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      focusNode: _focusNode,
-      decoration: InputDecoration(
-        hintText: 'Search',
-        suffixIcon: Icon(
-          Icons.search,
-          color: _focusNode.hasFocus ? Primary : Colors.grey,
+    return Container(
+      color: Background,
+      padding: EdgeInsets.only(bottom: 10, top: 20),
+      child: TextField(
+        focusNode: _focusNode,
+        decoration: InputDecoration(
+          hintText: 'Search',
+          suffixIcon: Icon(
+            Icons.search,
+            color: _focusNode.hasFocus ? Primary : Colors.grey,
+          ),
+          border: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey, width: 1),
+          ),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey, width: 1),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Primary, width: 2),
+          ),
+          fillColor: Colors.white,
+          filled: true,
         ),
-        border: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey, width: 1),
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey, width: 1),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Primary, width: 2),
-        ),
-        fillColor: Colors.white,
-        filled: true,
       ),
     );
   }

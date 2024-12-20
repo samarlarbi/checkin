@@ -29,6 +29,111 @@ class MyTable extends StatelessWidget {
       'person': "Ahmed Salem",
       'type': 2,
       'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": true
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": false
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
+      "checked": true
+    },
+    {
+      'number': 12345,
+      'person': "Ahmed Salem",
+      'type': 2,
+      'paiment': true,
       "checked": true
     },
   ];
@@ -66,17 +171,20 @@ class MyTable extends StatelessWidget {
               tileColor: Colors.white,
               leading: tickets[index]["checked"] == true
                   ? const Icon(
-                      Icons.done_rounded,
-                      size: 40,
-                      fill: 1,
-                      grade: 900,
+                      Icons.done_outline_rounded,
+                      size: 30,
+                      fill: 0,
+                      opticalSize: 1,
+                      grade: 600,
                       weight: 900,
                       color: Primary,
                     )
                   : const Icon(
-                      Icons.close_rounded,
+                      Icons.close,
+                      grade: 600,
+                      weight: 900,
                       color: Color.fromARGB(255, 160, 82, 82),
-                      size: 40,
+                      size: 30,
                     ),
               title: Text(tickets[index]['person'].toString()),
               subtitle: Text(nbguests(tickets[index]['type'] as int)),
