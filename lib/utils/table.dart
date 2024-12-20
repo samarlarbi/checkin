@@ -37,7 +37,7 @@ class MyTable extends StatelessWidget {
     if (type == 1) {
       return "0 guest";
     } else if (type == 2) {
-      return "+1 guests";
+      return "+1 guest";
     } else if (type == 3) {
       return "+2 guests";
     } else if (type == 4) {
@@ -58,7 +58,7 @@ class MyTable extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
             ),
-            margin: const EdgeInsets.all(7),
+            margin: const EdgeInsets.symmetric(vertical: 7),
             child: ListTile(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -80,7 +80,10 @@ class MyTable extends StatelessWidget {
                     ),
               title: Text(tickets[index]['person'].toString()),
               subtitle: Text(nbguests(tickets[index]['type'] as int)),
-              trailing: IconButton(icon: Icon(Icons.keyboard_double_arrow_right_rounded ) , onPressed: (){},),
+              trailing: IconButton(
+                icon: Icon(Icons.keyboard_double_arrow_right_rounded),
+                onPressed: () {},
+              ),
             ),
           );
         },

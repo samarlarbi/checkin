@@ -1,3 +1,4 @@
+import 'package:checkin/utils/searchField.dart';
 import 'package:checkin/utils/table.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,8 @@ class _InvitationsState extends State<Invitations> {
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: [
+            SearchField(),
+            SizedBox(height: 10),
             MyTable(),
           ],
         ),
