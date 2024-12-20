@@ -1,4 +1,4 @@
-import 'package:checkin/colors.dart';
+import 'package:checkin/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_nav_bar/curved_bar/curved_action_bar.dart';
 import 'package:curved_nav_bar/fab_bar/fab_bottom_app_bar_item.dart';
