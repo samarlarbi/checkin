@@ -33,7 +33,7 @@ class _SearchFieldState extends State<SearchField> {
       child: TextField(
         focusNode: _focusNode,
         decoration: InputDecoration(
-          hintText: 'Search',
+          hintText: 'Enter ticket code',
           suffixIcon: Icon(
             Icons.search,
             color: _focusNode.hasFocus ? Primary : Colors.grey,

@@ -1,5 +1,7 @@
 import 'package:checkin/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/typicons_icons.dart';
+import 'package:fluttericon/web_symbols_icons.dart';
 
 class MyTable extends StatelessWidget {
   final List<Map<String, dynamic>> tickets = [
@@ -171,7 +173,7 @@ class MyTable extends StatelessWidget {
               tileColor: Colors.white,
               leading: tickets[index]["checked"] == true
                   ? const Icon(
-                      Icons.done_outline_rounded,
+                      WebSymbols.ok,
                       size: 30,
                       fill: 0,
                       opticalSize: 1,
@@ -180,9 +182,7 @@ class MyTable extends StatelessWidget {
                       color: Primary,
                     )
                   : const Icon(
-                      Icons.close,
-                      grade: 600,
-                      weight: 900,
+                      WebSymbols.cancel,
                       color: Color.fromARGB(255, 160, 82, 82),
                       size: 30,
                     ),

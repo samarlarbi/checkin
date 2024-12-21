@@ -1,6 +1,7 @@
 import 'package:checkin/widgets/Scan_Page/view/ScanPage.dart';
 import 'package:checkin/utils/navbar.dart';
 import 'package:checkin/widgets/invitations_screen/invitationsPage.dart';
+import 'package:checkin/widgets/ticket_page/view/ticketPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -40,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Navbar(
         Screen0: Scanner_screen(),
         Screen1: Invitations(),
-        Screen2: Text("s , 2 "),
+        Screen2: MyTicketView(),
       ),
     ));
   }

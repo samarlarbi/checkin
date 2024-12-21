@@ -1,3 +1,4 @@
+import 'package:checkin/utils/MyAppBar.dart';
 import 'package:checkin/utils/searchField.dart';
 import 'package:checkin/utils/table.dart';
 import 'package:flutter/material.dart';
@@ -16,20 +17,9 @@ class _InvitationsState extends State<Invitations> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Background,
-      appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.more_vert_outlined,
-                  color: const Color.fromARGB(255, 69, 69, 69)))
-        ],
-        title: Text(
-          "Invitations",
-          style: TextStyle(color: const Color.fromARGB(255, 69, 69, 69)),
-        ),
-        centerTitle: true,
-        backgroundColor: Background,
-        elevation: 0,
+      appBar: MyAppBar(
+        title: "All Invitations",
+        leading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
