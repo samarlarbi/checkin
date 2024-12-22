@@ -13,7 +13,7 @@ class MyTicketView extends StatelessWidget {
         title: "Ticket",
         leading: true,
       ),
-      backgroundColor: Color.fromARGB(255, 211, 209, 209),
+      backgroundColor: Color.fromARGB(255, 229, 229, 229),
       body: Center(
         child: TicketWidget(
           color: Colors.white,
@@ -148,7 +148,15 @@ class TicketData extends StatelessWidget {
         const SizedBox(height: 30),
         const Center(
           child: Text(''),
-        )
+        ),
+        Wrap(alignment: WrapAlignment.spaceBetween, children: [
+          Image.asset(
+              width: MediaQuery.of(context).size.width * 0.3, "assets/mic.png"),
+          SizedBox(width: 20),
+          Image.network(
+              width: MediaQuery.of(context).size.width * 0.3,
+              "https://th.bing.com/th/id/OIP.KSWWegLW2uvkZo9NwwfE2AHaH6?w=183&h=196&c=7&r=0&o=5&pid=1.7")
+        ])
       ],
     );
   }
