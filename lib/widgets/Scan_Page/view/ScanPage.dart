@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:blobs/blobs.dart';
 import 'package:checkin/utils/colors.dart';
+import 'package:checkin/utils/inputdialog.dart';
 import 'package:checkin/utils/myButton.dart';
 import 'package:checkin/widgets/Scan_Page/scanner.dart';
 import 'package:flutter/material.dart';
@@ -77,12 +78,9 @@ class _Scanner_screenState extends State<Scanner_screen> {
                     controller: blobCtrl,
                   ),
                 ),
-                Image.network(
-                    cacheHeight:
-                        (MediaQuery.of(context).size.width * 0.8).round(),
-                    cacheWidth:
-                        (MediaQuery.of(context).size.width * 0.8).round(),
-                    'https://budgetcoinz.com/wp-content/uploads/2022/11/QR-Code-Generator.png')
+                Image.asset(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    "assets/homeimge.png")
               ]),
               MyButton(
                 title: "scan QR code",
@@ -95,11 +93,7 @@ class _Scanner_screenState extends State<Scanner_screen> {
               const SizedBox(
                 height: 10,
               ),
-              MyButton(
-                title: "Enter code",
-                color: light,
-                width: MediaQuery.of(context).size.width * 0.7,
-              )
+              DialogButton()
             ],
           ),
         ),

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 
 class MyTicketView extends StatelessWidget {
-  const MyTicketView({Key? key}) : super(key: key);
+  final ticket;
+
+  const MyTicketView({Key? key, this.ticket}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,21 +16,16 @@ class MyTicketView extends StatelessWidget {
         leading: true,
       ),
       backgroundColor: Color.fromARGB(255, 229, 229, 229),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
         child: TicketWidget(
           color: Colors.white,
-          width: 350,
-          height: 500,
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: MediaQuery.of(context).size.height * 0.7,
           isCornerRounded: true,
           padding: const EdgeInsets.all(20),
           child: TicketData(
-            ticket: {
-              'number': 12345,
-              'person': "Ahmed Salem",
-              'type': 2,
-              'payment': true,
-              'checked': true
-            },
+            ticket: ticket,
           ),
         ),
       ),
@@ -81,30 +78,6 @@ class TicketData extends StatelessWidget {
                 ),
               ),
             ),
-            const Row(
-              children: [
-                Text(
-                  'microsoft',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Icon(
-                    Icons.confirmation_num_outlined,
-                    color: Color.fromARGB(255, 68, 74, 93),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    'Nateg',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            )
           ],
         ),
         const Padding(
@@ -128,34 +101,48 @@ class TicketData extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 12.0),
                 child: ticketDetailsWidget('code', '76836A45', '', ''),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: ticketDetailsWidget(
-                    'guests', nbguests(ticket['type']), '', ''),
-              ),
             ],
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(top: 10.0),
-          child: Center(
-            child: Text(
-              'graduation ceremony',
-              style: TextStyle(color: Colors.black),
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child:
+              ticketDetailsWidget('telphone', nbguests(ticket['type']), '', ''),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: ticketDetailsWidget(
+                  'guests', nbguests(ticket['type']), '', ''),
             ),
-          ),
+            Row(
+              children: [
+                for (int i = 0; i < ticket['nbguest']; i++)
+                  Transform.scale(
+                    scale: 1.2,
+                    child: Checkbox(
+                      value: true,
+                      onChanged: (bool? value) {},
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+              ],
+            )
+          ],
         ),
-        const SizedBox(height: 30),
-        const Center(
-          child: Text(''),
-        ),
-        Wrap(alignment: WrapAlignment.spaceBetween, children: [
+        SizedBox(height: 30),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           Image.asset(
               width: MediaQuery.of(context).size.width * 0.3, "assets/mic.png"),
-          SizedBox(width: 20),
-          Image.network(
+          Image.asset(
               width: MediaQuery.of(context).size.width * 0.3,
-              "https://th.bing.com/th/id/OIP.KSWWegLW2uvkZo9NwwfE2AHaH6?w=183&h=196&c=7&r=0&o=5&pid=1.7")
+              "assets/nateg.png")
         ])
       ],
     );

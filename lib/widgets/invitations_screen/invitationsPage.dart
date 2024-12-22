@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import '../../utils/colors.dart';
 
 class Invitations extends StatefulWidget {
-  const Invitations({super.key});
+  final tickets;
+  const Invitations({super.key, this.tickets});
 
   @override
   State<Invitations> createState() => _InvitationsState();
@@ -27,7 +28,7 @@ class _InvitationsState extends State<Invitations> {
           children: [
             SearchField(),
             SizedBox(height: 10),
-            MyTable(),
+            MyTable(tickets: widget.tickets),
           ],
         ),
       ),

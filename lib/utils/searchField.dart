@@ -15,7 +15,7 @@ class _SearchFieldState extends State<SearchField> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      setState(() {}); // Rebuild the widget when the focus state changes
+      setState(() {}); 
     });
   }
 

@@ -41,6 +41,7 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0
   fluttericon: ^2.0.0
   ticket_widget: ^0.0.1
+  curved_navigation_bar: ^1.0.6
 
 
 dev_dependencies:
@@ -70,6 +71,7 @@ flutter:
   assets:
     - assets/nateg.png
     - assets/mic.png
+    - assets/homeimge.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -1,144 +1,11 @@
 import 'package:checkin/utils/colors.dart';
+import 'package:checkin/widgets/ticket_page/view/ticketPage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/web_symbols_icons.dart';
 
 class MyTable extends StatelessWidget {
-  final List<Map<String, dynamic>> tickets = [
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": true
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": true
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": false
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": true
-    },
-    {
-      'number': 12345,
-      'person': "Ahmed Salem",
-      'type': 2,
-      'paiment': true,
-      "checked": true
-    },
-  ];
+  final tickets;
 
   String nbguests(int type) {
     if (type == 1) {
@@ -153,7 +20,7 @@ class MyTable extends StatelessWidget {
     return "Unknown";
   }
 
-  MyTable({super.key});
+  MyTable({super.key, required this.tickets});
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +57,14 @@ class MyTable extends StatelessWidget {
               subtitle: Text(nbguests(tickets[index]['type'] as int)),
               trailing: IconButton(
                 icon: Icon(Icons.keyboard_double_arrow_right_rounded),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            MyTicketView(ticket: tickets[index])),
+                  );
+                },
               ),
             ),
           );
