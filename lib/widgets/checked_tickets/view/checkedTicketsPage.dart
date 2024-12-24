@@ -35,7 +35,7 @@ class _CheckedTicketsPageState extends State<CheckedTicketsPage> {
 
   Future<void> _fetchTickets() async {
     await _controller.fetchCheckedTickets();
-    setState(() {}); // Manually trigger a rebuild
+    setState(() {});
   }
 
   @override
@@ -52,7 +52,6 @@ class _CheckedTicketsPageState extends State<CheckedTicketsPage> {
           children: [
             SearchField(),
             SizedBox(height: 10),
-            // Use FutureBuilder to handle async loading
             _controller.isLoading
                 ? Center(child: CircularProgressIndicator())
                 : _controller.errorMessage.isNotEmpty
