@@ -1,7 +1,7 @@
 import 'package:checkin/widgets/Scan_Page/view/ScanPage.dart';
 import 'package:checkin/utils/navbar.dart';
 import 'package:checkin/widgets/checked_tickets/view/checkedTicketsPage.dart';
-import 'package:checkin/widgets/invitations_screen/invitationsPage.dart';
+import 'package:checkin/widgets/attendees_screen/invitationsPage.dart';
 import 'package:checkin/widgets/ticket_page/view/ticketPage.dart';
 import 'package:flutter/material.dart';
 
@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Center(
       child: Navbar(
         Screen0: Scanner_screen(),
-        Screen1: CheckedTicketsPage(),
+        Screen1: Invitations(),
         Screen2: CheckedTicketsPage(),
       ),
     ));

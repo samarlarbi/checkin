@@ -3,6 +3,7 @@ import 'package:blobs/blobs.dart';
 import 'package:checkin/utils/colors.dart';
 import 'package:checkin/utils/inputdialog.dart';
 import 'package:checkin/utils/myButton.dart';
+import 'package:checkin/widgets/Scan_Page/controller/checkincontroller.dart';
 import 'package:checkin/widgets/Scan_Page/scanner.dart';
 import 'package:flutter/material.dart';
 
@@ -19,21 +20,39 @@ class Scanner_screen extends StatefulWidget {
 
 class _Scanner_screenState extends State<Scanner_screen> {
   String _scanBarcode = 'Unknown';
+  String barcodeScanRes = "";
+  String code = "";
+  TextEditingController controller = TextEditingController();
+
+  final CheckinController _controller = CheckinController();
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _fetchAttendee(code) async {
+    await _controller.fetchCheckin(code);
+    setState(() {});
+    print(_controller.attendee);
+  }
 
   Future<void> scanQR() async {
-    String barcodeScanRes;
-    // Platform messages may fail, so we use a try/catch PlatformException.
+    String barcodeScanRess;
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+      barcodeScanRess = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
-      print(barcodeScanRes);
+      setState(() {
+        barcodeScanRes = barcodeScanRess;
+      });
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
@@ -93,7 +112,13 @@ class _Scanner_screenState extends State<Scanner_screen> {
               const SizedBox(
                 height: 10,
               ),
-              DialogButton()
+              DialogButton(
+                onpressed: (input) async {
+                  print(input);
+                  await _fetchAttendee(input); // Fetch attendee with input code
+                },
+                controller: controller,
+              )
             ],
           ),
         ),

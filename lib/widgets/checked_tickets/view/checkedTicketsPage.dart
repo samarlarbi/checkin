@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../Api/httpClient.dart';
 import '../../../utils/MyAppBar.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/searchField.dart';
 import '../../../utils/table.dart'; // Assuming your table widget is here
 import '../controller/controller.dart';
-import '../service/Checkedticketsservice.dart'; // Assuming you have a service to fetch the tickets
 
 class CheckedTicketsPage extends StatefulWidget {
   const CheckedTicketsPage({super.key});

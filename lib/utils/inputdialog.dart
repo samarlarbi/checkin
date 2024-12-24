@@ -7,7 +7,9 @@ import 'colors.dart';
 import 'myButton.dart';
 
 class DialogButton extends StatelessWidget {
-  const DialogButton({super.key});
+  final Function(String?) onpressed;
+  final TextEditingController? controller;
+  const DialogButton({super.key, required this.onpressed, this.controller});
 
   Future<String?> showInputDialog(BuildContext context) {
     TextEditingController controller = TextEditingController();
@@ -33,6 +35,7 @@ class DialogButton extends StatelessWidget {
               color: Colors.white,
             ),
             child: TextField(
+              controller: controller,
               decoration: InputDecoration(
                 hintText: 'Enter ticket code',
                 suffixIcon: Icon(
@@ -65,7 +68,9 @@ class DialogButton extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context, controller.text);
+                print(controller.text + "--------");
+                onpressed(
+                    controller.text); // Pass the input to the parent widget
               },
               child: Text(
                 'OK',
