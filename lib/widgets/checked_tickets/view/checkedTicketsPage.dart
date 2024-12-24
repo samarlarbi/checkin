@@ -4,6 +4,7 @@ import '../../../utils/MyAppBar.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/searchField.dart';
 import '../../../utils/table.dart'; // Assuming your table widget is here
+import '../controller/controller.dart';
 import '../service/Checkedticketsservice.dart'; // Assuming you have a service to fetch the tickets
 
 class CheckedTicketsPage extends StatefulWidget {
@@ -18,11 +19,12 @@ class _CheckedTicketsPageState extends State<CheckedTicketsPage> {
   List<Map<String, dynamic>> tickets = [];
   List<Map<String, dynamic>> filteredTickets = [];
   TextEditingController searchController = TextEditingController();
+  final CheckedTicketsController _controller = CheckedTicketsController();
 
   @override
   void initState() {
     super.initState();
-    ticketsFuture = fetchTickets();
+    _fetchTickets();
   }
 
   @override
@@ -31,25 +33,9 @@ class _CheckedTicketsPageState extends State<CheckedTicketsPage> {
     super.dispose();
   }
 
-  Future<List<Map<String, dynamic>>> fetchTickets() async {
-    try {
-      var response =
-          await CheckedTicketsService(HttpClient()).getCheckedTickets();
-      tickets = response;
-      filteredTickets = response;
-      return response;
-    } catch (e) {
-      throw Exception("Failed to load tickets");
-    }
-  }
-
-  void filterTickets(String query) {
-    setState(() {
-      filteredTickets = tickets
-          .where((ticket) =>
-              ticket['name'].toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
+  Future<void> _fetchTickets() async {
+    await _controller.fetchCheckedTickets();
+    setState(() {}); // Manually trigger a rebuild
   }
 
   @override
@@ -67,26 +53,11 @@ class _CheckedTicketsPageState extends State<CheckedTicketsPage> {
             SearchField(),
             SizedBox(height: 10),
             // Use FutureBuilder to handle async loading
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: ticketsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No tickets available.'));
-                }
-
-                return MyTable(
-                  tickets: filteredTickets,
-                );
-              },
-            ),
+            _controller.isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _controller.errorMessage.isNotEmpty
+                    ? Center(child: Text('Error: ${_controller.errorMessage}'))
+                    : MyTable(tickets: _controller.checkedTickets),
           ],
         ),
       ),
