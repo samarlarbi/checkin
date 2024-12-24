@@ -38,7 +38,7 @@ class MyTable extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               tileColor: Colors.white,
-              leading: tickets[index]["checked"] == true
+              leading: tickets[index]["checkedIn"] == true
                   ? const Icon(
                       WebSymbols.ok,
                       size: 30,
@@ -53,8 +53,8 @@ class MyTable extends StatelessWidget {
                       color: Color.fromARGB(255, 160, 82, 82),
                       size: 30,
                     ),
-              title: Text(tickets[index]['person'].toString()),
-              subtitle: Text(nbguests(tickets[index]['type'] as int)),
+              title: Text(tickets[index]['nameAttendee'].toString()),
+              subtitle: Text(nbguests(tickets[index]['checkedInGuest'])),
               trailing: IconButton(
                 icon: Icon(Icons.keyboard_double_arrow_right_rounded),
                 onPressed: () {
