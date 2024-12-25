@@ -22,6 +22,8 @@ class CheckinController with ChangeNotifier {
     try {
       var attendees = await attendeeService.checkin(ticketCode);
       _attendee = attendees;
+      _isLoading = false;
+      
       print("Fetched attendees: $attendees");
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";

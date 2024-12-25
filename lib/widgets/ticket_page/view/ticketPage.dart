@@ -21,7 +21,7 @@ class MyTicketView extends StatelessWidget {
         child: TicketWidget(
           color: Colors.white,
           width: MediaQuery.of(context).size.width * 0.9,
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.8,
           isCornerRounded: true,
           padding: const EdgeInsets.all(20),
           child: TicketData(
@@ -35,14 +35,14 @@ class MyTicketView extends StatelessWidget {
 
 class TicketData extends StatelessWidget {
   final Map<String, dynamic> ticket;
-  String nbguests(int type) {
-    if (type == 1) {
+  String nbguests(String type) {
+    if (type == "Not Graduated") {
       return "0 guest";
-    } else if (type == 2) {
+    } else if (type == "2") {
       return "+1 guest";
-    } else if (type == 3) {
+    } else if (type == "3") {
       return "+2 guests";
-    } else if (type == 4) {
+    } else if (type == "4") {
       return "guest";
     }
     return "Unknown";
@@ -55,8 +55,9 @@ class TicketData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String ticketStatus = ticket['checked'] == true ? "Checked-In" : "Pending";
-    Color statusColor = ticket['checked'] == true ? Colors.green : Colors.red;
+    String ticketStatus =
+        ticket['checkedIn'] == true ? "Checked-In" : "Pending";
+    Color statusColor = ticket['checkedIn'] == true ? Colors.green : Colors.red;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,6 +79,22 @@ class TicketData extends StatelessWidget {
                 ),
               ),
             ),
+            Row(
+              children: [
+                Text(
+                  ticket["ticket"]["ticketTypeId"]['nameTicketType'],
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 8.0),
+                  child: Icon(
+                    Icons.school,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ),
+              ],
+            )
           ],
         ),
         const Padding(
@@ -96,18 +113,18 @@ class TicketData extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ticketDetailsWidget(
-                  'name', ticket['person'], 'Date', '28-08-2022'),
+                  'name', ticket['nameAttendee'], 'Email', ticket["email"]),
               Padding(
                 padding: const EdgeInsets.only(top: 12.0),
-                child: ticketDetailsWidget('code', '76836A45', '', ''),
+                child: ticketDetailsWidget(
+                    'code', ticket["ticket"]["codeTicket"].toString(), '', ''),
               ),
             ],
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 12.0),
-          child:
-              ticketDetailsWidget('telphone', nbguests(ticket['type']), '', ''),
+          child: ticketDetailsWidget('Phone', ticket["phone"], '', ''),
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.1),
         Row(
@@ -117,11 +134,14 @@ class TicketData extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
               child: ticketDetailsWidget(
-                  'guests', nbguests(ticket['type']), '', ''),
+                  'guests',
+                  nbguests(ticket["ticket"]["ticketTypeId"]['nameTicketType']),
+                  '',
+                  ''),
             ),
             Row(
               children: [
-                for (int i = 0; i < ticket['nbguest']; i++)
+                for (int i = 0; i < ticket['checkedInGuest']; i++)
                   Transform.scale(
                     scale: 1.2,
                     child: Checkbox(

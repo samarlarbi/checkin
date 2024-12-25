@@ -47,6 +47,7 @@ class HttpClient {
 
       return _handleResponse(response);
     } catch (e) {
+      
       rethrow; // Propagate the error for further handling
     }
   }

@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
+import '../../ticket_page/view/ticketPage.dart';
+
 class Scanner_screen extends StatefulWidget {
   const Scanner_screen({super.key});
 
@@ -38,7 +40,33 @@ class _Scanner_screenState extends State<Scanner_screen> {
   Future<void> _fetchAttendee(code) async {
     await _controller.fetchCheckin(code);
     setState(() {});
-    print(_controller.attendee);
+    print("****************************" + _controller.attendee.toString());
+
+    if (_controller.attendee.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Checkin'),
+            content: Text('Checkin failed'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyTicketView(ticket: _controller.attendee)),
+      );
+    }
   }
 
   Future<void> scanQR() async {
@@ -49,6 +77,9 @@ class _Scanner_screenState extends State<Scanner_screen> {
       setState(() {
         barcodeScanRes = barcodeScanRess;
       });
+      if (barcodeScanRes != "-1") {
+        await _fetchAttendee(barcodeScanRes);
+      }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
