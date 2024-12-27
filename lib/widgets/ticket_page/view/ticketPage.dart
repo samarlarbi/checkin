@@ -3,29 +3,73 @@ import 'package:checkin/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 
-class MyTicketView extends StatelessWidget {
+import '../controller/controller.dart';
+
+class MyTicketView extends StatefulWidget {
   final ticket;
 
-  const MyTicketView({Key? key, this.ticket}) : super(key: key);
+  MyTicketView({Key? key, this.ticket}) : super(key: key);
+
+  @override
+  State<MyTicketView> createState() => _MyTicketViewState();
+}
+
+class _MyTicketViewState extends State<MyTicketView> {
+  final CheckinGuestController _controller = CheckinGuestController();
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> _fetchAttendee(attendeeid) async {
+    await _controller.fetchCheckinGuest(attendeeid);
+    setState(() {});
+    print("****************************" + _controller.attendee.toString());
+
+    if (_controller.attendee.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Checkin'),
+            content: Text('Checkin failed'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyTicketView(ticket: _controller.attendee)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MyAppBar(
+      appBar: MyAppBar(
         title: "Ticket",
         leading: true,
       ),
       backgroundColor: Color.fromARGB(255, 229, 229, 229),
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
         child: TicketWidget(
           color: Colors.white,
           width: MediaQuery.of(context).size.width * 0.9,
           height: MediaQuery.of(context).size.height * 0.8,
           isCornerRounded: true,
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: TicketData(
-            ticket: ticket,
+            ticket: widget.ticket,
           ),
         ),
       ),
@@ -33,32 +77,60 @@ class MyTicketView extends StatelessWidget {
   }
 }
 
-class TicketData extends StatelessWidget {
+class TicketData extends StatefulWidget {
   final Map<String, dynamic> ticket;
-  String nbguests(String type) {
-    if (type == "Not Graduated") {
-      return "0 guest";
-    } else if (type == "2") {
-      return "+1 guest";
-    } else if (type == "3") {
-      return "+2 guests";
-    } else if (type == "4") {
-      return "guest";
-    }
-    return "Unknown";
-  }
 
-  const TicketData({
+  TicketData({
     Key? key,
     required this.ticket,
   }) : super(key: key);
 
   @override
+  State<TicketData> createState() => _TicketDataState();
+}
+
+class _TicketDataState extends State<TicketData> {
+  final CheckinGuestController _controller = CheckinGuestController();
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> _Checkinguest(attendeeid) async {
+    await _controller.fetchCheckinGuest(attendeeid);
+    setState(() {});
+    print("****************************" + _controller.attendee.toString());
+
+    if (_controller.attendee.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Checkin'),
+            content: Text('Checkin failed'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  List<bool> checkboxValues = [false, false, false];
+  @override
   Widget build(BuildContext context) {
     String ticketStatus =
-        ticket['checkedIn'] == true ? "Checked-In" : "Pending";
-    Color statusColor = ticket['checkedIn'] == true ? Colors.green : Colors.red;
-
+        widget.ticket['checkedIn'] == true ? "Checked-In" : "Pending";
+    Color statusColor =
+        widget.ticket['checkedIn'] == true ? Colors.green : Colors.red;
+    int uncheckedGuest = widget.ticket["ticket"]["ticketTypeId"]['nbGuest'] -
+        widget.ticket["checkedInGuest"];
+    int checkedINGuest = widget.ticket["checkedInGuest"];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -82,7 +154,7 @@ class TicketData extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  ticket["ticket"]["ticketTypeId"]['nameTicketType'],
+                  widget.ticket["ticket"]["ticketTypeId"]['nameTicketType'],
                   style: TextStyle(
                       color: Colors.black, fontWeight: FontWeight.bold),
                 ),
@@ -97,7 +169,7 @@ class TicketData extends StatelessWidget {
             )
           ],
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 20.0),
           child: Text(
             'Ceremony Ticket',
@@ -108,23 +180,23 @@ class TicketData extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 25.0),
+          padding: EdgeInsets.only(top: 25.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ticketDetailsWidget(
-                  'name', ticket['nameAttendee'], 'Email', ticket["email"]),
+              ticketDetailsWidget('name', widget.ticket['nameAttendee'],
+                  'Email', widget.ticket["email"]),
               Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: ticketDetailsWidget(
-                    'code', ticket["ticket"]["codeTicket"].toString(), '', ''),
+                padding: EdgeInsets.only(top: 12.0),
+                child: ticketDetailsWidget('code',
+                    widget.ticket["ticket"]["codeTicket"].toString(), '', ''),
               ),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 12.0),
-          child: ticketDetailsWidget('Phone', ticket["phone"], '', ''),
+          padding: EdgeInsets.only(top: 12.0),
+          child: ticketDetailsWidget('Phone', widget.ticket["phone"], '', ''),
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.1),
         Row(
@@ -132,28 +204,60 @@ class TicketData extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 12.0),
+              padding: EdgeInsets.only(top: 12.0),
               child: ticketDetailsWidget(
                   'guests',
-                  nbguests(ticket["ticket"]["ticketTypeId"]['nameTicketType']),
+                  "+" +
+                      widget.ticket["ticket"]["ticketTypeId"]['nbGuest']
+                          .toString() +
+                      " Guests",
                   '',
                   ''),
             ),
             Row(
               children: [
-                for (int i = 0; i < ticket['checkedInGuest']; i++)
-                  Transform.scale(
-                    scale: 1.2,
-                    child: Checkbox(
-                      value: true,
-                      onChanged: (bool? value) {},
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
+                Row(
+                  children: List.generate(uncheckedGuest, (index) {
+                    return Transform.scale(
+                      scale: 1.2,
+                      child: _controller.isLoading
+                          ? CircularProgressIndicator(
+                              color: Secondary,
+                            )
+                          : Checkbox(
+                              fillColor: MaterialStateProperty.all(Secondary),
+                              value: checkboxValues[index],
+                              onChanged: (bool? value) {
+                                _Checkinguest(widget.ticket["_id"]);
+                                setState(() {
+                                  checkboxValues[index] = true;
+                                });
+                                print(checkboxValues);
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                    );
+                  }),
+                ),
+                Row(
+                  children: List.generate(checkedINGuest, (index) {
+                    return Transform.scale(
+                      scale: 1.2,
+                      child: Checkbox(
+                        fillColor: MaterialStateProperty.all(Secondary),
+                        value: true,
+                        onChanged: (bool? value) {},
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
+                ),
               ],
-            )
+            ),
           ],
         ),
         SizedBox(height: 30),
@@ -175,38 +279,38 @@ Widget ticketDetailsWidget(String firstTitle, String firstDesc,
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Padding(
-        padding: const EdgeInsets.only(left: 12.0),
+        padding: EdgeInsets.only(left: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               firstTitle,
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.grey),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 4.0),
+              padding: EdgeInsets.only(top: 4.0),
               child: Text(
                 firstDesc,
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.black),
               ),
             )
           ],
         ),
       ),
       Padding(
-        padding: const EdgeInsets.only(right: 20.0),
+        padding: EdgeInsets.only(right: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               secondTitle,
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.grey),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 4.0),
+              padding: EdgeInsets.only(top: 4.0),
               child: Text(
                 secondDesc,
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.black),
               ),
             )
           ],
