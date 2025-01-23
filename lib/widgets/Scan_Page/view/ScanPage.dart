@@ -48,7 +48,7 @@ class _Scanner_screenState extends State<Scanner_screen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Checkin'),
-            content: Text('Checkin failed'),
+            content: Text('Checkin failed : \n' + code),
             actions: [
               TextButton(
                 onPressed: () {
@@ -61,6 +61,23 @@ class _Scanner_screenState extends State<Scanner_screen> {
         },
       );
     } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(code),
+            content: Text(code),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
       Navigator.push(
         context,
         MaterialPageRoute(
