@@ -8,23 +8,34 @@ class CheckinController with ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  CheckinController() : attendeeService = AttendeeCheckinService(HttpClient());
+  // Constructor accepts token (for authentication) and HttpClient (for HTTP requests)
+  CheckinController({required String token})
+      : attendeeService = AttendeeCheckinService(token: token);
 
   Map<String, dynamic> get attendee => _attendee;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  Future<void> fetchCheckin(ticketCode) async {
+  // Fetch check-in data based on the ticket code
+  Future<void> fetchCheckin(String ticketCode) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      var attendees = await attendeeService.checkin(ticketCode);
-      _attendee = attendees;
-      _isLoading = false;
-      
-      print("Fetched attendees: $attendees");
+      var response = await attendeeService.verifyQRCode(ticketCode);
+
+      // Check if the response contains an error
+      if (response.containsKey("error")) {
+        _errorMessage = response["error"];
+      } else {
+        // Update the attendee data if there is no error
+        _attendee = response;
+      }
+
+      // Optionally log the response for debugging
+      print("Fetched attendee data: $response");
+
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";
       print(_errorMessage);

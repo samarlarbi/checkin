@@ -6,27 +6,27 @@ import 'package:checkin/utils/myButton.dart';
 import 'package:checkin/widgets/Scan_Page/controller/checkincontroller.dart';
 import 'package:checkin/widgets/Scan_Page/scanner.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-
 import '../../ticket_page/view/ticketPage.dart';
 
-class Scanner_screen extends StatefulWidget {
-  const Scanner_screen({super.key});
+class ScannerScreen extends StatefulWidget {
+  const ScannerScreen({super.key});
 
   @override
-  State<Scanner_screen> createState() => _Scanner_screenState();
+  State<ScannerScreen> createState() => _ScannerScreenState();
 }
 
-class _Scanner_screenState extends State<Scanner_screen> {
+class _ScannerScreenState extends State<ScannerScreen> {
   String _scanBarcode = 'Unknown';
   String barcodeScanRes = "";
-  String code = "";
   TextEditingController controller = TextEditingController();
 
-  final CheckinController _controller = CheckinController();
+  // Ensure to pass a token here
+  final CheckinController _controller = CheckinController(
+      token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiRUxfJGlSX2tiaVIiLCJpYXQiOjE3Mzc0MTE2NDR9.INKEJw81Q9UyYbVlWGgj3Thk-K7pyVDslLOutY5kJzg");
+
   @override
   void dispose() {
     super.dispose();
@@ -37,18 +37,19 @@ class _Scanner_screenState extends State<Scanner_screen> {
     super.initState();
   }
 
-  Future<void> _fetchAttendee(code) async {
+  Future<void> _fetchAttendee(String code) async {
+    print(
+        "--------------------------------------------- \n Fetching attendee with code: $code");
     await _controller.fetchCheckin(code);
     setState(() {});
-    print("****************************" + _controller.attendee.toString());
 
     if (_controller.attendee.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Checkin'),
-            content: Text('Checkin failed : \n' + code),
+            title: Text('Check-in Failed'),
+            content: Text('Check-in failed for code: $code'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -61,12 +62,14 @@ class _Scanner_screenState extends State<Scanner_screen> {
         },
       );
     } else {
+      // Display more useful attendee information in the dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(code),
-            content: Text(code),
+            title: Text('Check-in Success'),
+            content: Text(
+                'Attendee: ${_controller.attendee['name']}'), // Example of attendee info
             actions: [
               TextButton(
                 onPressed: () {
@@ -89,6 +92,7 @@ class _Scanner_screenState extends State<Scanner_screen> {
   Future<void> scanQR() async {
     String barcodeScanRess;
     try {
+      print("-----------------------------------------------");
       barcodeScanRess = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
       setState(() {
@@ -99,6 +103,23 @@ class _Scanner_screenState extends State<Scanner_screen> {
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to scan barcode. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
 
     if (!mounted) return;
@@ -117,12 +138,13 @@ class _Scanner_screenState extends State<Scanner_screen> {
       appBar: AppBar(
         actions: [
           IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.more_vert_outlined,
-                  color: const Color.fromARGB(255, 69, 69, 69)))
+            onPressed: () {},
+            icon: Icon(Icons.more_vert_outlined,
+                color: const Color.fromARGB(255, 69, 69, 69)),
+          )
         ],
         title: Text(
-          "Scan QR code",
+          "Scan QR Code",
           style: TextStyle(color: const Color.fromARGB(255, 69, 69, 69)),
         ),
         centerTitle: true,
@@ -135,22 +157,25 @@ class _Scanner_screenState extends State<Scanner_screen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Stack(alignment: Alignment.center, children: [
-                Container(
-                  child: Blob.fromID(
-                    styles:
-                        BlobStyles(color: Color.fromARGB(255, 204, 228, 228)),
-                    size: MediaQuery.of(context).size.width * 0.8,
-                    id: ['10-4-0952400'],
-                    controller: blobCtrl,
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    child: Blob.fromID(
+                      styles:
+                          BlobStyles(color: Color.fromARGB(255, 204, 228, 228)),
+                      size: MediaQuery.of(context).size.width * 0.8,
+                      id: ['10-4-0952400'],
+                      controller: blobCtrl,
+                    ),
                   ),
-                ),
-                Image.asset(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    "assets/homeimge.png")
-              ]),
+                  Image.asset(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      "assets/homeimge.png")
+                ],
+              ),
               MyButton(
-                title: "scan QR code",
+                title: "Scan QR Code",
                 onpressed: () {
                   scanQR();
                 },
@@ -162,11 +187,11 @@ class _Scanner_screenState extends State<Scanner_screen> {
               ),
               DialogButton(
                 onpressed: (input) async {
-                  print(input);
-                  await _fetchAttendee(input); // Fetch attendee with input code
+                  await _fetchAttendee(
+                      input!); // Fetch attendee with input code
                 },
                 controller: controller,
-              )
+              ),
             ],
           ),
         ),

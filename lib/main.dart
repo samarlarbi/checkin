@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         '/': (context) => MyHomePage(),
-        '/scan': (context) => Scanner_screen(),
+        '/scan': (context) => ScannerScreen(),
         '/invitations': (context) => Invitations(),
         '/ticket': (context) => MyTicketView(),
       },
@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         body: Center(
       child: Navbar(
-        Screen0: Scanner_screen(),
+        Screen0: ScannerScreen(),
         Screen1: Invitations(),
         Screen2: CheckedTicketsPage(),
       ),
