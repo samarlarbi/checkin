@@ -125,12 +125,10 @@ class _TicketDataState extends State<TicketData> {
   @override
   Widget build(BuildContext context) {
     String ticketStatus =
-        widget.ticket['checkedIn'] == true ? "Checked-In" : "Pending";
+        widget.ticket['isCheckedIn'] == true ? "Checked-In" : "Pending";
     Color statusColor =
-        widget.ticket['checkedIn'] == true ? Colors.green : Colors.red;
-    int uncheckedGuest = widget.ticket["ticket"]["ticketTypeId"]['nbGuest'] -
-        widget.ticket["checkedInGuest"];
-    int checkedINGuest = widget.ticket["checkedInGuest"];
+        widget.ticket['isCheckedIn'] == true ? Colors.green : Colors.red;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -154,7 +152,7 @@ class _TicketDataState extends State<TicketData> {
             Row(
               children: [
                 Text(
-                  widget.ticket["ticket"]["ticketTypeId"]['nameTicketType'],
+                  widget.ticket["type"],
                   style: TextStyle(
                       color: Colors.black, fontWeight: FontWeight.bold),
                 ),
@@ -184,19 +182,10 @@ class _TicketDataState extends State<TicketData> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ticketDetailsWidget('name', widget.ticket['nameAttendee'],
-                  'Email', widget.ticket["email"]),
-              Padding(
-                padding: EdgeInsets.only(top: 12.0),
-                child: ticketDetailsWidget('code',
-                    widget.ticket["ticket"]["codeTicket"].toString(), '', ''),
-              ),
+              ticketDetailsWidget('name', widget.ticket['attendee']["name"],
+                  'Email', widget.ticket['attendee']["email"]),
             ],
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 12.0),
-          child: ticketDetailsWidget('Phone', widget.ticket["phone"], '', ''),
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.1),
         Row(
@@ -208,55 +197,11 @@ class _TicketDataState extends State<TicketData> {
               child: ticketDetailsWidget(
                   'guests',
                   "+" +
-                      widget.ticket["ticket"]["ticketTypeId"]['nbGuest']
+                      widget.ticket["relatives"].length
                           .toString() +
                       " Guests",
                   '',
                   ''),
-            ),
-            Row(
-              children: [
-                Row(
-                  children: List.generate(uncheckedGuest, (index) {
-                    return Transform.scale(
-                      scale: 1.2,
-                      child: _controller.isLoading
-                          ? CircularProgressIndicator(
-                              color: Secondary,
-                            )
-                          : Checkbox(
-                              fillColor: MaterialStateProperty.all(Secondary),
-                              value: checkboxValues[index],
-                              onChanged: (bool? value) {
-                                _Checkinguest(widget.ticket["_id"]);
-                                setState(() {
-                                  checkboxValues[index] = true;
-                                });
-                                print(checkboxValues);
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                    );
-                  }),
-                ),
-                Row(
-                  children: List.generate(checkedINGuest, (index) {
-                    return Transform.scale(
-                      scale: 1.2,
-                      child: Checkbox(
-                        fillColor: MaterialStateProperty.all(Secondary),
-                        value: true,
-                        onChanged: (bool? value) {},
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ],
             ),
           ],
         ),
