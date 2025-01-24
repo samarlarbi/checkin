@@ -8,7 +8,7 @@ class MyTable extends StatelessWidget {
   final tickets;
   Map<String, dynamic> toJson(attendee) {
     return {
-      'ticketId': attendee.id,
+      'ticketId': attendee.ticket.ticketId,
       'name': attendee.name,
       'email': attendee.email,
       'phone': attendee.phone,
