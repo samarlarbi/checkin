@@ -18,7 +18,6 @@ class Invitations extends StatefulWidget {
 class _InvitationsState extends State<Invitations> {
   TextEditingController searchController = TextEditingController();
   final AttendeeController _controller = AttendeeController();
-  int currentPage = 1;
   bool isLoading = false;
 
   @override
@@ -38,19 +37,13 @@ class _InvitationsState extends State<Invitations> {
     setState(() {
       isLoading = true;
     });
-    await _controller.fetchAttendee(page: currentPage);
+    await _controller.fetchAttendee();
     setState(() {
       isLoading = false;
     });
   }
 
   // Fonction pour changer la page
-  void _changePage(int page) {
-    setState(() {
-      currentPage = page;
-    });
-    _fetchAttendee();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,35 +58,37 @@ class _InvitationsState extends State<Invitations> {
         child: Column(
           children: [
             SearchField(),
-            SizedBox(height: 10),
+            Container(
+              width: MediaQuery.of(context).size.width * 1,
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+              color: Background,
+              child: Text(
+                _controller.attendee.length == 0
+                    ? "No Invitations"
+                    : _controller.attendee.length.toString() + " Invitations",
+                style: TextStyle(
+                  color: Primary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
             isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height * 0.3),
+                    child: Center(
+                        child: CircularProgressIndicator(
+                      color: Primary,
+                    )),
+                  )
                 : Expanded(
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: currentPage > 1
-                                  ? () => _changePage(currentPage - 1)
-                                  : null,
-                            ),
-                            // Affichage des numéros de pages
-                            Text(
-                              'Page $currentPage',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.arrow_forward),
-                              onPressed: () => _changePage(currentPage + 1),
-                            ),
-                          ],
-                        ),
                         // Affichage des invités
                         MyTable(tickets: _controller.attendee)
-                        
+
                         // Pagination
                       ],
                     ),

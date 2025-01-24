@@ -66,7 +66,9 @@ class MyTable extends StatelessWidget {
                       size: 30,
                     ),
               title: Text(tickets[index].name.toString()),
-              subtitle: Text(nbguests(tickets[index].ticket.relatives.length)),
+              subtitle: Text("+" +
+                  tickets[index].ticket.relatives.length.toString() +
+                  " guests"),
               trailing: IconButton(
                 icon: Icon(Icons.keyboard_double_arrow_right_rounded),
                 onPressed: () {

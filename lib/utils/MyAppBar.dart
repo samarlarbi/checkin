@@ -18,13 +18,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: const Color.fromARGB(255, 86, 86, 86),
             )
           : Padding(padding: EdgeInsets.zero),
-      actions: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.more_vert_outlined),
-          color: const Color.fromARGB(255, 69, 69, 69),
-        ),
-      ],
+
       title: Text(
         title ?? '',
         style: const TextStyle(color: Color.fromARGB(255, 69, 69, 69)),

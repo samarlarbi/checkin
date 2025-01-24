@@ -70,7 +70,7 @@ class _MyTicketViewState extends State<MyTicketView> {
             width: MediaQuery.of(context).size.width * 0.9,
             height: MediaQuery.of(context).size.height * 0.8,
             isCornerRounded: true,
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
             child: TicketData(
               ticket: widget.ticket,
             ),
@@ -125,7 +125,6 @@ class _TicketDataState extends State<TicketData> {
     }
   }
 
-  List<bool> checkboxValues = [false, false, false];
   @override
   Widget build(BuildContext context) {
     Color statusColor =
@@ -133,10 +132,11 @@ class _TicketDataState extends State<TicketData> {
 
     return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -159,12 +159,18 @@ class _TicketDataState extends State<TicketData> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ticketDetailsWidget(
-                        'Type',
-                        '',
-                        widget.ticket['type'],
-                        '',
+                      Text(
+                        'Ticket Type',
+                        style: TextStyle(color: Colors.grey),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          widget.ticket["type"],
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                      SizedBox(height: 5),
                       Text(
                         'Name',
                         style: TextStyle(color: Colors.grey),
@@ -181,6 +187,7 @@ class _TicketDataState extends State<TicketData> {
                     ],
                   ),
                 ),
+                SizedBox(height: 5),
                 Padding(
                   padding: EdgeInsets.only(left: 12.0),
                   child: Column(
@@ -203,7 +210,7 @@ class _TicketDataState extends State<TicketData> {
                   ),
                 ),
 
-                SizedBox(height: 10),
+                SizedBox(height: 5),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(children: [
@@ -218,20 +225,25 @@ class _TicketDataState extends State<TicketData> {
               ],
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 5),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Affichage des invités (relatives)
               Padding(
                 padding: EdgeInsets.only(top: 2.0),
-                child: ticketDetailsWidget(
-                  'Guests',
-                  '',
-                  "+" +
-                      widget.ticket["relatives"].length.toString() +
-                      " Guests",
-                  '',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      'Guests',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    Text(
+                      "+" + widget.ticket["relatives"].length.toString(),
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 10),

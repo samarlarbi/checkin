@@ -72,12 +72,13 @@ class _CheckInWidgetState extends State<CheckInWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor = isCheckedIn == true
+    Color statusColor = isCheckedIn == false
         ? Color.fromRGBO(224, 89, 87, 1)
         : const Color.fromARGB(255, 121, 201, 125);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -93,7 +94,7 @@ class _CheckInWidgetState extends State<CheckInWidget> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Text(
                 isCheckedIn ? 'Yes' : 'No',
@@ -116,16 +117,16 @@ class _CheckInWidgetState extends State<CheckInWidget> {
               fixedSize: Size.fromWidth(
                 MediaQuery.of(context).size.width * 0.7,
               ),
-              backgroundColor: isCheckedIn
+              backgroundColor: isCheckedIn == false
                   ? Color.fromRGBO(224, 89, 87, 1)
                   : const Color.fromARGB(255, 121, 201, 125),
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(5),
               ),
             ),
             child: Text(
-              isCheckedIn ? "Undo Check-In" : "Confirm Check-In",
+              isCheckedIn == false ? "Unchecked" : "Checked-In",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
