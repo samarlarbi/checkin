@@ -1,5 +1,7 @@
 import 'package:checkin/utils/MyAppBar.dart';
 import 'package:checkin/utils/colors.dart';
+import 'package:checkin/widgets/ticket_page/view/components/CheckInWidget.dart';
+import 'package:checkin/widgets/ticket_page/view/components/GuestCheckInWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 
@@ -61,15 +63,17 @@ class _MyTicketViewState extends State<MyTicketView> {
       ),
       backgroundColor: Color.fromARGB(255, 229, 229, 229),
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-        child: TicketWidget(
-          color: Colors.white,
-          width: MediaQuery.of(context).size.width * 0.9,
-          height: MediaQuery.of(context).size.height * 0.8,
-          isCornerRounded: true,
-          padding: EdgeInsets.all(20),
-          child: TicketData(
-            ticket: widget.ticket,
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+        child: Center(
+          child: TicketWidget(
+            color: Colors.white,
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
+            isCornerRounded: true,
+            padding: EdgeInsets.all(10),
+            child: TicketData(
+              ticket: widget.ticket,
+            ),
           ),
         ),
       ),
@@ -124,96 +128,130 @@ class _TicketDataState extends State<TicketData> {
   List<bool> checkboxValues = [false, false, false];
   @override
   Widget build(BuildContext context) {
-    String ticketStatus =
-        widget.ticket['isCheckedIn'] == true ? "Checked-In" : "Pending";
     Color statusColor =
         widget.ticket['isCheckedIn'] == true ? Colors.green : Colors.red;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              width: 120.0,
-              height: 25.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
-                border: Border.all(width: 1.0, color: statusColor),
-              ),
-              child: Center(
-                child: Text(
-                  ticketStatus,
-                  style: TextStyle(color: statusColor),
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Text(
-                  widget.ticket["type"],
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Icon(
-                    Icons.school,
-                    color: Color.fromARGB(255, 0, 0, 0),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.12,
+                child: Center(
+                  child: CheckInWidget(
+                    ticketId: widget.ticket['ticketId'],
+                    initialStatus: widget.ticket['isCheckedIn'],
                   ),
                 ),
-              ],
-            )
-          ],
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 20.0),
-          child: Text(
-            'Ceremony Ticket',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 25.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ticketDetailsWidget('name', widget.ticket['attendee']["name"],
-                  'Email', widget.ticket['attendee']["email"]),
+              ),
             ],
           ),
-        ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 12.0),
-              child: ticketDetailsWidget(
-                  'guests',
+          Padding(
+            padding: EdgeInsets.only(top: 2.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Affichage des détails du détenteur du ticket
+                Padding(
+                  padding: EdgeInsets.only(left: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ticketDetailsWidget(
+                        'Type',
+                        '',
+                        widget.ticket['type'],
+                        '',
+                      ),
+                      Text(
+                        'Name',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          widget.ticket['attendee']["name"],
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          widget.ticket['attendee']["email"],
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(children: [
+                    ticketDetailsWidget(
+                      'Ticket ID',
+                      widget.ticket['ticketId'],
+                      '',
+                      "",
+                    ),
+                  ]),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Affichage des invités (relatives)
+              Padding(
+                padding: EdgeInsets.only(top: 2.0),
+                child: ticketDetailsWidget(
+                  'Guests',
+                  '',
                   "+" +
-                      widget.ticket["relatives"].length
-                          .toString() +
+                      widget.ticket["relatives"].length.toString() +
                       " Guests",
                   '',
-                  ''),
-            ),
-          ],
-        ),
-        SizedBox(height: 30),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          Image.asset(
-              width: MediaQuery.of(context).size.width * 0.3, "assets/mic.png"),
-          Image.asset(
-              width: MediaQuery.of(context).size.width * 0.3,
-              "assets/nateg.png")
-        ])
-      ],
+                ),
+              ),
+              SizedBox(height: 10),
+              // Liste des invités
+              ...widget.ticket["relatives"].map<Widget>((relative) {
+                return Padding(
+                    padding: EdgeInsets.only(bottom: 8.0),
+                    child: GuestCheckInWidget(relative: relative));
+              }).toList(),
+            ],
+          ),
+          SizedBox(height: 2),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            Image.asset(
+                width: MediaQuery.of(context).size.width * 0.2,
+                "assets/mic.png"),
+            Image.asset(
+                width: MediaQuery.of(context).size.width * 0.2,
+                "assets/nateg.png")
+          ])
+        ],
+      ),
     );
   }
 }

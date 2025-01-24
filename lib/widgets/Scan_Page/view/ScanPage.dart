@@ -69,7 +69,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           return AlertDialog(
             title: Text('Check-in Success'),
             content: Text(
-                'Attendee: ${_controller.attendee['name']}'), // Example of attendee info
+                'Attendee: ${_controller.attendee['name']}'), 
             actions: [
               TextButton(
                 onPressed: () {

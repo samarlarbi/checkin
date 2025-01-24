@@ -28,14 +28,15 @@ class CheckinController with ChangeNotifier {
       // Check if the response contains an error
       if (response.containsKey("error")) {
         _errorMessage = response["error"];
+        notifyListeners();
       } else {
         // Update the attendee data if there is no error
         _attendee = response;
+        notifyListeners();
       }
 
       // Optionally log the response for debugging
       print("Fetched attendee data: $response");
-
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";
       print(_errorMessage);

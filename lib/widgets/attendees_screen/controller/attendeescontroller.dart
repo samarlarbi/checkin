@@ -1,35 +1,55 @@
-import 'package:flutter/material.dart';
-import 'package:checkin/Api/httpClient.dart';
+import 'dart:convert';
+import 'package:checkin/widgets/attendees_screen/models/Attendee.dart';
+import 'package:http/http.dart' as http;
 
-import '../service/attendeeservice.dart';
+class AttendeeController {
+  List<Attendee> attendee = [];
+  bool isLoading = false;
+  String errorMessage = "";
 
-class AttendeeController with ChangeNotifier {
-  final AttendeeService attendeeService;
-  List<Map<String, dynamic>> _attendees = [];
-  bool _isLoading = false;
-  String _errorMessage = '';
+  final int pageSize = 10; // Nombre d'invités à afficher par page
 
-  AttendeeController() : attendeeService = AttendeeService(HttpClient());
-
-  List<Map<String, dynamic>> get attendee => _attendees;
-  bool get isLoading => _isLoading;
-  String get errorMessage => _errorMessage;
-
-  // Fetch checked invitations and update state
-  Future<void> fetchAttendee() async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
+  Future<void> fetchAttendee({required int page}) async {
+    isLoading = true;
+    errorMessage = "";
 
     try {
-      var attendees = await attendeeService.getAttendees();
-      _attendees = attendees;
-      print("//////" + attendees.toString());
+      final response = await http.get(
+        Uri.parse(
+            'https://ceremony-backend-to-deploy.onrender.com/api/v1/registration?currentPage=$page&sizePerPage=$pageSize'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiRUxfJGlSX2tiaVIiLCJpYXQiOjE3Mzc0MTE2NDR9.INKEJw81Q9UyYbVlWGgj3Thk-K7pyVDslLOutY5kJzg"
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("Response status code: ${response.statusCode}");
+        List jsonData = json.decode(response.body)['data'];
+
+        // Traitement des données avant de les mapper
+        List processedData = jsonData.map((e) {
+          // Remplacer les valeurs null avant de mapper les données
+          e['ticket']['justification'] = e['ticket']['justification'] ??
+              ''; // Remplacer null par une chaîne vide
+          return e;
+        }).toList();
+
+        if (page == 1) {
+          attendee = processedData.map((e) => Attendee.fromJson(e)).toList();
+          print("----------------------------" + attendee.toString());
+        } else {
+          attendee
+              .addAll(processedData.map((e) => Attendee.fromJson(e)).toList());
+        }
+      } else {
+        errorMessage = "Failed to load data.";
+      }
     } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      errorMessage = "Error fetching data: $e";
     }
+
+    isLoading = false;
   }
 }
