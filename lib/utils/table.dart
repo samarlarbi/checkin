@@ -6,6 +6,18 @@ import 'package:fluttericon/web_symbols_icons.dart';
 
 class MyTable extends StatelessWidget {
   final tickets;
+  Map<String, dynamic> toJson(attendee) {
+    return {
+      'ticketId': attendee.id,
+      'name': attendee.name,
+      'email': attendee.email,
+      'phone': attendee.phone,
+      'ticket': attendee.ticket,
+      'isCheckedIn': attendee.ticket.isCheckedIn,
+      'relatives': attendee.ticket.relatives,
+      'type': attendee.ticket.type,
+    };
+  }
 
   String nbguests(int type) {
     if (type == 1) {
@@ -38,7 +50,7 @@ class MyTable extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               tileColor: Colors.white,
-              leading: tickets[index]["checkedIn"] == true
+              leading: tickets[index].ticket.isCheckedIn == true
                   ? const Icon(
                       WebSymbols.ok,
                       size: 30,
@@ -53,8 +65,8 @@ class MyTable extends StatelessWidget {
                       color: Color.fromARGB(255, 160, 82, 82),
                       size: 30,
                     ),
-              title: Text(tickets[index]['nameAttendee'].toString()),
-              subtitle: Text(nbguests(tickets[index]['checkedInGuest'])),
+              title: Text(tickets[index].name.toString()),
+              subtitle: Text(nbguests(tickets[index].ticket.relatives.length)),
               trailing: IconButton(
                 icon: Icon(Icons.keyboard_double_arrow_right_rounded),
                 onPressed: () {
@@ -62,7 +74,7 @@ class MyTable extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            MyTicketView(ticket: tickets[index])),
+                            MyTicketView(ticket: toJson(tickets[index]))),
                   );
                 },
               ),

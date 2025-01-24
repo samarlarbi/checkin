@@ -6,6 +6,8 @@ import 'package:checkin/utils/searchField.dart';
 import 'package:checkin/utils/colors.dart';
 import 'package:checkin/widgets/attendees_screen/models/Attendee.dart';
 
+import '../../utils/table.dart';
+
 class Invitations extends StatefulWidget {
   const Invitations({super.key});
 
@@ -90,40 +92,8 @@ class _InvitationsState extends State<Invitations> {
                           ],
                         ),
                         // Affichage des invités
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: _controller.attendee.length,
-                            itemBuilder: (context, index) {
-                              Attendee attendee = _controller.attendee[index];
-                              return ListTile(
-                                leading: CircleAvatar(
-                                  child: Text(attendee.name.isNotEmpty
-                                      ? attendee.name[0]
-                                      : ''),
-                                ),
-                                title: Text(attendee.name),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(attendee.email),
-                                    Text(attendee.ticket.justification != null
-                                        ? 'Justification: ${attendee.ticket.justification}'
-                                        : 'Justification non renseignée'),
-                                  ],
-                                ),
-                                trailing: Checkbox(
-                                  value: attendee.ticket.isCheckedIn,
-                                  onChanged: (value) {
-                                    // Logique pour basculer l'état de check-in
-                                  },
-                                ),
-                                onTap: () {
-                                  // Logique de navigation ou autre action
-                                },
-                              );
-                            },
-                          ),
-                        ),
+                        MyTable(tickets: _controller.attendee)
+                        
                         // Pagination
                       ],
                     ),

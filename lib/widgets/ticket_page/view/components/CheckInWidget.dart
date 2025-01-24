@@ -1,4 +1,5 @@
 import 'dart:convert'; // Nécessaire pour encoder en JSON
+import 'package:checkin/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -48,7 +49,10 @@ class _CheckInWidgetState extends State<CheckInWidget> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Check-in status updated successfully!")),
+          SnackBar(
+            content: Text("Check-in status updated successfully!"),
+            backgroundColor: Primary,
+          ),
         );
       } else {
         throw Exception(
@@ -56,14 +60,21 @@ class _CheckInWidgetState extends State<CheckInWidget> {
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating check-in status: $error")),
+        SnackBar(
+          content: Text(
+            "Error updating check-in status: $error",
+          ),
+          backgroundColor: Primary,
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor = isCheckedIn == true ? Colors.green : Colors.red;
+    Color statusColor = isCheckedIn == true
+        ? Color.fromRGBO(224, 89, 87, 1)
+        : const Color.fromARGB(255, 121, 201, 125);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +93,6 @@ class _CheckInWidgetState extends State<CheckInWidget> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               decoration: BoxDecoration(
-                color: isCheckedIn ? Colors.green[100] : Colors.red[100],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -90,7 +100,9 @@ class _CheckInWidgetState extends State<CheckInWidget> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isCheckedIn ? Colors.green[800] : Colors.red[800],
+                  color: isCheckedIn
+                      ? const Color.fromARGB(255, 121, 201, 125)
+                      : Color.fromRGBO(224, 89, 87, 1),
                 ),
               ),
             ),
@@ -101,8 +113,12 @@ class _CheckInWidgetState extends State<CheckInWidget> {
           child: ElevatedButton(
             onPressed: updateCheckInStatus,
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isCheckedIn ? Colors.red[600] : Colors.green[600],
+              fixedSize: Size.fromWidth(
+                MediaQuery.of(context).size.width * 0.7,
+              ),
+              backgroundColor: isCheckedIn
+                  ? Color.fromRGBO(224, 89, 87, 1)
+                  : const Color.fromARGB(255, 121, 201, 125),
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),

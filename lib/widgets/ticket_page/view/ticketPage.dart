@@ -141,11 +141,9 @@ class _TicketDataState extends State<TicketData> {
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: MediaQuery.of(context).size.height * 0.12,
-                child: Center(
-                  child: CheckInWidget(
-                    ticketId: widget.ticket['ticketId'],
-                    initialStatus: widget.ticket['isCheckedIn'],
-                  ),
+                child: CheckInWidget(
+                  ticketId: widget.ticket['ticketId'],
+                  initialStatus: widget.ticket['isCheckedIn'],
                 ),
               ),
             ],
@@ -174,7 +172,9 @@ class _TicketDataState extends State<TicketData> {
                       Padding(
                         padding: EdgeInsets.only(top: 4.0),
                         child: Text(
-                          widget.ticket['attendee']["name"],
+                          widget.ticket["name"] == null
+                              ? widget.ticket["attendee"]["name"]
+                              : widget.ticket["name"],
                           style: TextStyle(color: Colors.black),
                         ),
                       )
@@ -193,7 +193,9 @@ class _TicketDataState extends State<TicketData> {
                       Padding(
                         padding: EdgeInsets.only(top: 4.0),
                         child: Text(
-                          widget.ticket['attendee']["email"],
+                          widget.ticket["email"] == null
+                              ? widget.ticket["attendee"]["email"]
+                              : widget.ticket["email"],
                           style: TextStyle(color: Colors.black),
                         ),
                       )
@@ -241,15 +243,31 @@ class _TicketDataState extends State<TicketData> {
               }).toList(),
             ],
           ),
-          SizedBox(height: 2),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Image.asset(
-                width: MediaQuery.of(context).size.width * 0.2,
-                "assets/mic.png"),
-            Image.asset(
-                width: MediaQuery.of(context).size.width * 0.2,
-                "assets/nateg.png")
-          ])
+          SizedBox(
+              height: widget.ticket["type"] == "EXTERNAL" ||
+                      widget.ticket["type"] == "INDIVIDUAL" ||
+                      widget.ticket["type"] == "WITH_ONE"
+                  ? 30
+                  : 2),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                    width: widget.ticket["type"] == "EXTERNAL" ||
+                            widget.ticket["type"] == "INDIVIDUAL" ||
+                            widget.ticket["type"] == "WITH_ONE"
+                        ? MediaQuery.of(context).size.width * 0.4
+                        : MediaQuery.of(context).size.width * 0.2,
+                    "assets/mic.png"),
+                Image.asset(
+                    width: widget.ticket["type"] == "EXTERNAL" ||
+                            widget.ticket["type"] == "INDIVIDUAL" ||
+                            widget.ticket["type"] == "WITH_ONE"
+                        ? MediaQuery.of(context).size.width * 0.4
+                        : MediaQuery.of(context).size.width * 0.2,
+                    "assets/nateg.png")
+              ])
         ],
       ),
     );

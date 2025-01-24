@@ -79,66 +79,59 @@ class _GuestCheckInWidgetState extends State<GuestCheckInWidget> {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Ligne pour le nom
-            Text(
-              widget.relative['name'], // Afficher le nom
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
-              ),
-            ),
-            SizedBox(height: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Ligne pour le nom
+                Text(
+                  widget.relative['name'], // Afficher le nom
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
 
-            // Ligne pour le statut "Checked-In"
-            Text(
-              "Checked-In: ${isCheckedIn ? 'Yes' : 'No'}", // Afficher le statut
-              style: TextStyle(
-                fontSize: 14,
-                color: isCheckedIn ? Colors.green[700] : Colors.red[700],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: 8),
+                // Ligne pour le statut "Checked-In"
 
-            // Ligne pour le bouton
+                // Ligne pour le bouton
+              ],
+            ),
             ElevatedButton(
               onPressed: updateGuestCheckInStatus,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isCheckedIn ? Colors.red[600] : Colors.green[600],
+                backgroundColor: isCheckedIn == false
+                    ? Color.fromRGBO(224, 89, 87, 1)
+                    : const Color.fromARGB(255, 121, 201, 125),
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    isCheckedIn ? "Undo Check-In" : "Confirm Check-In",
-                    style: TextStyle(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      isCheckedIn == false ? "unchecked" : "Check-In",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(
+                      isCheckedIn == false ? Icons.cancel : Icons.check_circle,
+                      size: 15,
                       color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  SizedBox(width: 18),
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor:
-                        isCheckedIn ? Colors.red[100] : Colors.green[100],
-                    child: Icon(
-                      isCheckedIn ? Icons.cancel : Icons.check_circle,
-                      size: 30,
-                      color: isCheckedIn ? Colors.red : Colors.green,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
