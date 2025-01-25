@@ -96,47 +96,44 @@ class _GuestCheckInWidgetState extends State<GuestCheckInWidget> {
                       color: Colors.grey[800],
                     ),
                   ),
-
-                  // Ligne pour le statut "Checked-In"
-
-                  // Ligne pour le bouton
+                  ElevatedButton(
+                    onPressed: updateGuestCheckInStatus,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCheckedIn == false
+                          ? Color.fromRGBO(224, 89, 87, 1)
+                          : const Color.fromARGB(255, 121, 201, 125),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            isCheckedIn == false ? "Unchecked" : "Check-In",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(
+                            isCheckedIn == false
+                                ? Icons.cancel
+                                : Icons.check_circle,
+                            size: 15,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
-              ),
-              ElevatedButton(
-                onPressed: updateGuestCheckInStatus,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isCheckedIn == false
-                      ? Color.fromRGBO(224, 89, 87, 1)
-                      : const Color.fromARGB(255, 121, 201, 125),
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.25,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        isCheckedIn == false ? "Unchecked" : "Check-In",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Icon(
-                        isCheckedIn == false
-                            ? Icons.cancel
-                            : Icons.check_circle,
-                        size: 15,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),

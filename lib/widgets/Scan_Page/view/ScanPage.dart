@@ -68,8 +68,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Check-in Success'),
-            content: Text(
-                'Attendee: ${_controller.attendee['name']}'), 
+            content: Text('Attendee: ${_controller.attendee['name']}'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -181,16 +180,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 },
                 color: Primary,
                 width: MediaQuery.of(context).size.width * 0.7,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              DialogButton(
-                onpressed: (input) async {
-                  await _fetchAttendee(
-                      input!); // Fetch attendee with input code
-                },
-                controller: controller,
               ),
             ],
           ),

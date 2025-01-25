@@ -213,14 +213,17 @@ class _TicketDataState extends State<TicketData> {
                 SizedBox(height: 5),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(children: [
-                    ticketDetailsWidget(
-                      'Ticket ID',
-                      widget.ticket['ticketId'],
-                      '',
-                      "",
-                    ),
-                  ]),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Row(children: [
+                      ticketDetailsWidget(
+                        'Ticket ID',
+                        widget.ticket['ticketId'],
+                        '',
+                        "",
+                      ),
+                    ]),
+                  ),
                 ),
               ],
             ),
