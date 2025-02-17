@@ -1,59 +1,44 @@
-import 'dart:convert';
 import 'package:checkin/widgets/attendees_screen/models/Attendee.dart';
-import 'package:http/http.dart' as http;
+import 'package:checkin/Api/httpClient.dart';
+import 'package:checkin/Api/EndPoint.dart';
+import '../service/attendeeservice.dart';
 
 class AttendeeController {
-  List<Attendee> attendee = [];
+  List attendees = [];
   bool isLoading = false;
   String errorMessage = "";
 
-  final int pageSize = 10; // Number of attendees per page
+  final AttendeeService attendeeService;
 
-  Future<void> fetchAttendee({String search = ""}) async {
+  AttendeeController() : attendeeService = AttendeeService();
+// get  all attendees or search by name
+  Future<void> fetchAttendees({String search = ""}) async {
+    if (isLoading) return;
     isLoading = true;
     errorMessage = "";
-    int currentPage = 1; // Start at page 1
 
     try {
-      // Fetch all pages in a loop
-      final String url =
-          'https://ceremony-backend-to-deploy.onrender.com/api/v1/registration?currentPage=$currentPage&sizePerPage=10';
+      // Fetch data from the service
+      List<Map<String, dynamic>> jsonData =
+          await attendeeService.getAttendees(search: search);
 
-      final response = await http.get(
-        Uri.parse(search.isNotEmpty ? '$url&search=$search' : url),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization":
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiRUxfJGlSX2tiaVIiLCJpYXQiOjE3Mzc0MTE2NDR9.INKEJw81Q9UyYbVlWGgj3Thk-K7pyVDslLOutY5kJzg"
-        },
-      );
+      // Debugging: Print fetched data from the API
+      print("Fetched JSON data: $jsonData");
 
-      if (response.statusCode == 200) {
-        print("Response status code: ${response.statusCode}");
-        List jsonData = json.decode(response.body)['data'];
-
-        // Process the data before mapping
-        List processedData = jsonData.map((e) {
-          // Replace null values before mapping
-          e['ticket']['justification'] = e['ticket']['justification'] ??
-              ''; // Replace null with an empty string
-          return e;
-        }).toList();
-
-        // If no more data is returned, exit the loop
-        if (processedData.isEmpty) {
-          // hasMoreData = false;
-        } else {
-          // Add the new attendees to the existing list
-          attendee
-              .addAll(processedData.map((e) => Attendee.fromJson(e)).toList());
-          currentPage++; // Move to the next page
-        }
+      if (jsonData.isEmpty) {
+        print("No more attendees found. Current attendees list: $attendees");
       } else {
-        errorMessage = "Failed to load data.";
+        // Add the fetched attendees to the list
+        attendees = jsonData.toList();
+
+        // Debugging: Print the updated list of attendees
+        print("Updated attendees list: $attendees");
+
+        // Increment the current page for next fetch
       }
     } catch (e) {
       errorMessage = "Error fetching data: $e";
+      print(errorMessage);
     }
 
     isLoading = false;

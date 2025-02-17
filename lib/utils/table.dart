@@ -1,3 +1,4 @@
+import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/utils/colors.dart';
 import 'package:checkin/widgets/ticket_page/view/ticketPage.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class MyTable extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               tileColor: Colors.white,
-              leading: tickets[index].ticket.isCheckedIn == true
+              leading: tickets[index]["ticket"][ApiKey.checked] == true
                   ? const Icon(
                       WebSymbols.ok,
                       size: 30,
@@ -65,10 +66,7 @@ class MyTable extends StatelessWidget {
                       color: Color.fromARGB(255, 160, 82, 82),
                       size: 30,
                     ),
-              title: Text(tickets[index].name.toString()),
-              subtitle: Text("+" +
-                  tickets[index].ticket.relatives.length.toString() +
-                  " guests"),
+              title: Text(tickets[index][ApiKey.AttendeeName].toString()),
               trailing: IconButton(
                 icon: Icon(Icons.keyboard_double_arrow_right_rounded),
                 onPressed: () {
@@ -76,7 +74,7 @@ class MyTable extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            MyTicketView(ticket: toJson(tickets[index]))),
+                            MyTicketView(ticket: tickets[index])),
                   );
                 },
               ),

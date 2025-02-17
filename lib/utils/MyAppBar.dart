@@ -4,7 +4,7 @@ import 'colors.dart';
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final bool leading;
-
+  
   const MyAppBar({Key? key, this.title, this.leading = false})
       : super(key: key);
 
