@@ -83,7 +83,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MyTicketView(ticket: _controller.attendee)),
+            builder: (context) => MyTicketView(ticketno: _controller.attendee)),
       );
     }
   }

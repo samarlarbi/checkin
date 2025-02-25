@@ -24,7 +24,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: const TextStyle(color: Color.fromARGB(255, 69, 69, 69)),
       ),
       centerTitle: true,
-      backgroundColor: Background, // Assuming this is defined in colors.dart
+      backgroundColor: Background, 
       elevation: 0,
     );
   }

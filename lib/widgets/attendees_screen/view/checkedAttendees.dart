@@ -1,19 +1,20 @@
 // ignore_for_file: file_names
 
+import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/utils/table.dart';
 import 'package:flutter/material.dart';
 import 'package:checkin/widgets/attendees_screen/controller/attendeescontroller.dart';
 import 'package:checkin/utils/MyAppBar.dart';
 import 'package:checkin/utils/colors.dart';
 
-class Invitations extends StatefulWidget {
-  const Invitations({super.key});
+class ChecketAttendees extends StatefulWidget {
+  const ChecketAttendees({super.key});
 
   @override
-  State<Invitations> createState() => _InvitationsState();
+  State<ChecketAttendees> createState() => _ChecketAttendeesState();
 }
 
-class _InvitationsState extends State<Invitations> {
+class _ChecketAttendeesState extends State<ChecketAttendees> {
   TextEditingController searchController = TextEditingController();
 
   final AttendeeController _controller = AttendeeController();
@@ -100,7 +101,7 @@ class _InvitationsState extends State<Invitations> {
                   if (searchController.text.trim().isNotEmpty) {
                     fetchAttendees(search: searchController.text.trim());
                   } else {
-                    fetchAttendees(); // Requête par défaut si aucun texte
+                    fetchAttendees(); 
                   }
                 },
               ),
@@ -114,7 +115,14 @@ class _InvitationsState extends State<Invitations> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else {
-                  return MyTable(tickets: _controller.attendees);
+                  final checkedAttendees = _controller.attendees
+                      .where((attendee) =>
+                          attendee[ApiKey.ticket][ApiKey.checked] == true)
+                      .toList();
+                  return RefreshIndicator(
+                      onRefresh: _refreshData,
+                      child:
+                          Container(child: MyTable(tickets: checkedAttendees)));
                 }
               },
             ),

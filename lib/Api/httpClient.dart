@@ -11,9 +11,11 @@ class HttpClient {
   Future<dynamic> get(String endpoint, {Map<String, String>? headers}) async {
     try {
       final Uri url = Uri.parse('$baseUrl/$endpoint');
-      final response = await http
-          .get(url, headers: headers)
-          .timeout(Duration(seconds: timeoutDuration));
+      final response = await http.get(url, headers: {
+        ...?headers,
+        "Authorization":
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
+      }).timeout(Duration(seconds: timeoutDuration));
 
       return _handleResponse(response);
     } catch (e) {
@@ -47,7 +49,41 @@ class HttpClient {
 
       return _handleResponse(response);
     } catch (e) {
-      
+      rethrow; // Propagate the error for further handling
+    }
+  }
+
+  Future<dynamic> delete(String endpoint,
+      {Map<String, String>? headers, Object? body}) async {
+    try {
+      final Uri url = Uri.parse('$baseUrl/$endpoint');
+      final response = await http
+          .delete(url, headers: headers, body: body)
+          .timeout(Duration(seconds: timeoutDuration));
+
+      return _handleResponse(response);
+    } catch (e) {
+      rethrow; // Propagate the error for further handling
+    }
+  }
+
+  // PATCH request
+  Future<dynamic> patch(String endpoint,
+      {Map<String, String>? headers, Object? body}) async {
+    try {
+      final Uri url = Uri.parse('$baseUrl/$endpoint');
+      final response = await http
+          .patch(url,
+              headers: {
+                ...?headers,
+                "Authorization":
+                    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
+              },
+              body: body)
+          .timeout(Duration(seconds: timeoutDuration));
+
+      return _handleResponse(response);
+    } catch (e) {
       rethrow; // Propagate the error for further handling
     }
   }

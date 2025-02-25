@@ -6,13 +6,11 @@ class AttendeeService {
 
   AttendeeService() : api = HttpClient();
 
-  // Fetch attendees with optional pagination and search query
   Future<List<Map<String, dynamic>>> getAttendees({
     int page = 1,
     String search = "",
   }) async {
     try {
-      // Construct the endpoint URL with pagination and search support
       String endpoint = EndPoint.getallAttendees;
       if (search.isNotEmpty) {
         endpoint += "&search=$search";
@@ -25,7 +23,6 @@ class AttendeeService {
         "Content-Type": "application/json"
       });
 
-      // Debugging output
 
       // Return the list of attendees
       if (response != null && response['data'] != null) {

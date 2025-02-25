@@ -8,7 +8,7 @@ class CheckedTicketsService {
 
   Future<List<Map<String, dynamic>>> getCheckedTickets() async {
     try {
-      var response = await api.get(EndPoint.getcheckedticket);
+      var response = await api.get(EndPoint.getallAttendees);
       print("*******" + response['attendees'].toString());
       if (response != null && response['attendees'] != null) {
         return List<Map<String, dynamic>>.from(response['attendees']);

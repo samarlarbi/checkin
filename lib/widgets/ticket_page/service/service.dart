@@ -1,24 +1,76 @@
 import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/Api/httpClient.dart';
 
-class GuestCheckinService {
+class ConfirmGeneralCheckinService {
   final HttpClient api;
 
-  GuestCheckinService(this.api);
+  ConfirmGeneralCheckinService(this.api);
 
-  Future<Map<String, dynamic>> checkin(attendeeid) async {
+  Future<Map<String, dynamic>> getTiketbyTicketno(ticketno) async {
     try {
-      final response = await api.put('${EndPoint.checkinguest}/$attendeeid');
-
-      if (response != null && response['attendee'] != null) {
-        print("******* ${response['attendee']}");
-        return Map<String, dynamic>.from(response['attendee']);
-      } else {
-        print("Error: Response does not contain 'Guests' key or is invalid");
-        return {};
-      }
+      String endpoint = EndPoint.getticketbyticketno + "/" + ticketno;
+      final response = await api.get(endpoint);
+      print("respon-----------------");
+      print(response);
+      return response;
     } catch (e) {
-      print("Error fetching checked invitations: $e");
+      print("Error fetching ticket: $e");
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> getTiketbyQRcode(qrcode) async {
+    try {
+      String endpoint = EndPoint.getticketbyqrcode + "/" + qrcode;
+      final response = await api.get(endpoint);
+      print("respon-----------------");
+      print(response);
+      return response;
+    } catch (e) {
+      print("Error fetching ticket: $e");
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> ConfirmDinner(ticketno) async {
+    try {
+      String endpoint = EndPoint.confirm_dinner;
+      final response = await api.patch(endpoint, body: {"ticketNo": ticketno});
+      print("respon-----------------");
+      print(response);
+      return response;
+    } catch (e) {
+      print("Error fetching ticket: $e");
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> CheckinWorkshop(ticketno, workshopid) async {
+    try {
+      String endpoint = EndPoint.confirm_workshop_checkin;
+      print("-----------servece" + ticketno + " " + workshopid);
+      final response = await api.patch(endpoint,
+          body: {"ticketNo": ticketno, "workshopId": workshopid});
+      print("respon-----------------");
+      print(response);
+      return response;
+    } catch (e) {
+      print("Error fetching ticket: $e");
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> checkin(ticketno) async {
+    try {
+      String endpoint = EndPoint.confirm_general_checkin;
+      final response = await api.patch(endpoint, body: {
+        "ticketNo": ticketno,
+      });
+      print("-----------servece");
+      print(response);
+      return response;
+    } catch (e) {
+      print("Error fetching ticket: $e");
       return {};
     }
   }

@@ -1,10 +1,16 @@
 class EndPoint {
-  static const String baseUrl = 'http://localhost:4500/api/v1';
-
+  static const String baseUrl = 'http://192.168.31.1:4500/api/v1';
+  static const String confirm_dinner = "registration/confirm-dinner";
   static const String getallAttendees = 'registration';
-  static const String getcheckedticket = 'api/attendees/checked';
-  static const String checkbycodeticket = 'registration/verify-qrcode/';
-//  static const String checkbycodeticket = 'api/attendees/checkbycodeticket';
+
+  static const String getticketbyqrcode = 'registration/verify-qrcode/';
+  static const String getticketbyticketno = 'registration/verify-ticketId';
+  static const String confirm_general_checkin =
+      'registration/confirm-general-checkin';
+
+  static const String confirm_workshop_checkin =
+      "registration/confirm-workshop-checkin";
+
   static const String checkinguest = 'api/attendees/checkinguest';
   static const String token =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiaG1kNWlkZW1pdCIsImlhdCI6MTczOTAwNjI0NX0.c0PlVESmeORinVRy-JPBB6JEW4qMGfe1-ynzHV7ysZc";
@@ -33,18 +39,16 @@ class ApiKey {
 
   static String ticket = "ticket";
   static String ticketno = "ticketNo";
-  static String tickethadMeal = "hadMeal";
+  static String hadMeal = "hadMeal";
   static String error = "error";
   static String message = "message";
-   
-  
+
   static String workshops = "workshops";
   static String workshop = "workshop";
   static String hasAttended = "hasAttended";
   static String idworkshop = "id";
   static String nameworkshop = "name";
-static String id = "id";
-
+  static String id = "id";
 
   static String key = "key";
   static String limit = "limit";
