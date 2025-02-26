@@ -13,9 +13,10 @@ class AttendeeService {
     try {
       String endpoint = EndPoint.getallAttendees;
       if (search.isNotEmpty) {
-        endpoint += "&search=$search";
+        endpoint += "/verify-ticketId/" + search;
       }
-
+      print('******************');
+      print(endpoint);
       // Fetch data from API
       var response = await api.get(endpoint, headers: {
         "Authorization":
@@ -23,8 +24,15 @@ class AttendeeService {
         "Content-Type": "application/json"
       });
 
-
       // Return the list of attendees
+
+      if (search.isNotEmpty) {
+        List<Map<String, dynamic>> p = [];
+
+        p.add(response);
+        return p;
+      }
+
       if (response != null && response['data'] != null) {
         return List<Map<String, dynamic>>.from(response['data']);
       } else {

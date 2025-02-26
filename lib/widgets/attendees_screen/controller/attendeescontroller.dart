@@ -9,6 +9,7 @@ class AttendeeController {
   final AttendeeService attendeeService;
 
   AttendeeController() : attendeeService = AttendeeService();
+  
 // get  all attendees or search by name
   Future<void> fetchAttendees({String search = ""}) async {
     if (isLoading) return;

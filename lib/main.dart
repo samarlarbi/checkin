@@ -1,5 +1,6 @@
 import 'package:checkin/widgets/Scan_Page/view/ScanPage.dart';
 import 'package:checkin/utils/navbar.dart';
+import 'package:checkin/widgets/addAttendee/view/AddAttendeeView.dart';
 import 'package:checkin/widgets/attendees_screen/view/checkedAttendees.dart';
 import 'package:checkin/widgets/attendees_screen/view/invitationsPage.dart';
 import 'package:checkin/widgets/statics_screen/view/staticsView.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         '/scan': (context) => ScannerScreen(),
         '/invitations': (context) => Invitations(),
         '/ticket': (context) => MyTicketView(),
+        '/addattendee': (context) => AddAttendeeView()
       },
       debugShowCheckedModeBanner: false,
       initialRoute: '/',

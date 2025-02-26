@@ -125,9 +125,16 @@ class _InvitationsState extends State<Invitations> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Background,
-      appBar: const MyAppBar(
+      appBar: MyAppBar(
         title: "All Invitations",
         leading: false,
+        action: [
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "/addattendee");
+              },
+              icon: Icon(Icons.person_add_alt_1, color: Colors.grey))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -139,18 +146,21 @@ class _InvitationsState extends State<Invitations> {
               padding: const EdgeInsets.only(bottom: 10, top: 20),
               child: TextField(
                 controller: searchController,
-                focusNode: _focusNode,
                 decoration: InputDecoration(
                   hintText: 'Enter ticket code',
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.search),
                     color: _focusNode.hasFocus ? Primary : Colors.grey,
                     onPressed: () {
+                      print(
+                          "9999999999999999999999999999------------------------------------0");
+                      print(searchController.text.trim());
                       // Lancer la recherche uniquement si le champ n'est pas vide
                       if (searchController.text.trim().isNotEmpty) {
                         fetchAttendees(search: searchController.text.trim());
+                        setState(() {});
                       } else {
-                        fetchAttendees(); // Requête par défaut si aucun texte
+                        fetchAttendees();
                       }
                     },
                   ),
@@ -166,14 +176,14 @@ class _InvitationsState extends State<Invitations> {
                   fillColor: Colors.white,
                   filled: true,
                 ),
-                onChanged: (value) {
-                  // Lancer la recherche uniquement si le champ n'est pas vide
-                  if (searchController.text.trim().isNotEmpty) {
-                    fetchAttendees(search: searchController.text.trim());
-                  } else {
-                    fetchAttendees(); // Requête par défaut si aucun texte
-                  }
-                },
+                // onChanged: (value) {
+                //   // Lancer la recherche uniquement si le champ n'est pas vide
+                //   if (searchController.text.trim().isNotEmpty) {
+                //     fetchAttendees(search: searchController.text.trim());
+                //   } else {
+                //     fetchAttendees(); // Requête par défaut si aucun texte
+                //   }
+                // },
               ),
             ),
             const SizedBox(height: 5),

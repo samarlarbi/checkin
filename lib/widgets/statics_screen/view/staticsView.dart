@@ -38,6 +38,9 @@ class _StaticsViewState extends State<StaticsView> {
         title: "Statics",
         leading: false,
       ),
+      
+
+
     );
   }
 }
