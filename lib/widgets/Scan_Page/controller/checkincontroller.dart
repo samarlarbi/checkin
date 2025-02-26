@@ -17,25 +17,23 @@ class CheckinController with ChangeNotifier {
   String get errorMessage => _errorMessage;
 
   // Fetch check-in data based on the ticket code
-  Future<void> fetchCheckin(String ticketCode) async {
+  Future<void> fetchCheckin(String qrcode) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      var response = await attendeeService.verifyQRCode(ticketCode);
+      var response = await attendeeService.getTiketbyQRcode(qrcode);
 
-      // Check if the response contains an error
+      _attendee = response;
       if (response.containsKey("error")) {
         _errorMessage = response["error"];
         notifyListeners();
       } else {
-        // Update the attendee data if there is no error
         _attendee = response;
         notifyListeners();
       }
 
-      // Optionally log the response for debugging
       print("Fetched attendee data: $response");
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";

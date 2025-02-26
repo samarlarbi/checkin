@@ -181,6 +181,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 color: Primary,
                 width: MediaQuery.of(context).size.width * 0.7,
               ),
+             
             ],
           ),
         ),

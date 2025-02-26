@@ -27,62 +27,25 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../../Api/EndPoint.dart';
+
 class AttendeeCheckinService {
   final String token;
 
   AttendeeCheckinService({required this.token});
+  
+  get api => null;
 
-  Future<Map<String, dynamic>> verifyQRCode(String data) async {
-    final url = Uri.parse(
-        "https://ceremony-backend-to-deploy.onrender.com/api/v1/registration/verify-qrcode/$data");
-
+   Future<Map<String, dynamic>> getTiketbyQRcode(qrcode) async {
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-      );
-
-      // Handle different HTTP status codes
-      if (response.statusCode == 200) {
-        // Successfully verified the QR code
-        try {
-          // Decode the response body
-          print("Response body: ${response.body}");
-          return json.decode(response.body);
-        } catch (e) {
-          // Handle JSON parsing errors
-          return {
-            "error": "Failed to parse response body. Please try again later."
-          };
-        }
-      } else if (response.statusCode >= 400 && response.statusCode < 500) {
-        // Client-side error (e.g., bad request, unauthorized)
-        return {
-          "error":
-              "Client error: Status code ${response.statusCode}. Please check your request."
-        };
-      } else if (response.statusCode >= 500) {
-        // Server-side error (e.g., internal server error)
-        return {
-          "error":
-              "Server error: Status code ${response.statusCode}. Please try again later."
-        };
-      } else {
-        // Unexpected status code
-        return {
-          "error":
-              "Unexpected error: Status code ${response.statusCode}. Please try again."
-        };
-      }
+      String endpoint = EndPoint.getticketbyqrcode + "/" + qrcode;
+      final response = await api.get(endpoint);
+      print("respon-----------------");
+      print(response);
+      return response;
     } catch (e) {
-      // Handle network or unexpected errors
-      return {
-        "error":
-            "Network error: Unable to connect to the server. Please check your internet connection."
-      };
+      print("Error fetching ticket: $e");
+      return {};
     }
   }
 }
