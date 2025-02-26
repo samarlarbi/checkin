@@ -1,5 +1,5 @@
 class EndPoint {
-  static const String baseUrl = 'http://192.168.31.1:4500/api/v1';
+  static const String baseUrl = 'http://localhost:4500/api/v1';
   static const String confirm_dinner = "registration/confirm-dinner";
   static const String getallAttendees = 'registration';
 
