@@ -2,11 +2,14 @@ class EndPoint {
   static const String baseUrl = 'http://192.168.31.1:4500/api/v1';
   static const String confirm_dinner = "registration/confirm-dinner";
   static const String getallAttendees = 'registration';
+  static const String registration = 'registration';
 
   static const String getticketbyqrcode = 'registration/verify-qrcode/';
   static const String getticketbyticketno = 'registration/verify-ticketId';
   static const String confirm_general_checkin =
       'registration/confirm-general-checkin';
+  static const String getform =
+      'registration/get-form';
 
   static const String confirm_workshop_checkin =
       "registration/confirm-workshop-checkin";

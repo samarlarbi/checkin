@@ -1,15 +1,15 @@
-
 import '../service/attendeeservice.dart';
 
 class AttendeeController {
   List attendees = [];
+  int totalItems = 0;
   bool isLoading = false;
   String errorMessage = "";
 
   final AttendeeService attendeeService;
 
   AttendeeController() : attendeeService = AttendeeService();
-  
+
 // get  all attendees or search by name
   Future<void> fetchAttendees({String search = ""}) async {
     if (isLoading) return;
@@ -18,7 +18,7 @@ class AttendeeController {
 
     try {
       // Fetch data from the service
-      List<Map<String, dynamic>> jsonData =
+      Map<String, dynamic> jsonData =
           await attendeeService.getAttendees(search: search);
 
       print("Fetched JSON data: $jsonData");
@@ -26,10 +26,10 @@ class AttendeeController {
       if (jsonData.isEmpty) {
         print("No more attendees found. Current attendees list: $attendees");
       } else {
-        attendees = jsonData.toList();
+        attendees = jsonData["data"].toList();
+        totalItems = jsonData["totalItems"];
 
         print("Updated attendees list: $attendees");
-
       }
     } catch (e) {
       errorMessage = "Error fetching data: $e";

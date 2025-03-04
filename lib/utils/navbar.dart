@@ -76,7 +76,7 @@ class _NavbarState extends State<Navbar> {
             size: 30,
             color: Color.fromARGB(255, 121, 120, 120),
           ),
-          text: 'checked',
+          text: 'statistics',
         ),
       ],
       actionBarView: widget.Screen0,

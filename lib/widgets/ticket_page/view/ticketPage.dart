@@ -2,6 +2,7 @@
 
 import 'package:checkin/main.dart';
 import 'package:checkin/utils/MyAppBar.dart';
+import 'package:checkin/widgets/editAttendee/view/EditAttendeeView.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Api/EndPoint.dart';
@@ -124,11 +125,8 @@ class _MyTicketViewState extends State<MyTicketView> {
                             children: [
                               AppBar(
                                 leading: IconButton(
-                                  onPressed: () => Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => MyHomePage()),
-                                      (route) => false),
+                                  onPressed: () =>
+                                      Navigator.popAndPushNamed(context, '/'),
                                   icon: const Icon(Icons.arrow_back),
                                   color: Colors.white,
                                 ),
@@ -141,7 +139,16 @@ class _MyTicketViewState extends State<MyTicketView> {
                                 elevation: 0,
                                 actions: [
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditAttendeeView(
+                                                  ticketno: widget.ticketno),
+                                        ),
+                                      );
+                                    },
                                     icon: const Icon(
                                         Icons.mode_edit_outline_outlined),
                                     color: Colors.white,
@@ -191,7 +198,7 @@ class _MyTicketViewState extends State<MyTicketView> {
                                               "+216 " +
                                                   _controller
                                                           .attendee["attendee"]
-                                                      [ApiKey.email],
+                                                      [ApiKey.phone],
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 color: Colors.white,
@@ -327,31 +334,34 @@ class _MyTicketViewState extends State<MyTicketView> {
                               Wrap(
                                 alignment: WrapAlignment.spaceEvenly,
                                 children: [
-                                  // Container(
-                                  //   width: maxwidth * 0.45,
-                                  //   padding: EdgeInsets.all(5),
-                                  //   child: Column(
-                                  //     crossAxisAlignment:
-                                  //         CrossAxisAlignment.center,
-                                  //     children: [
-                                  //       Text(
-                                  //         "University",
-                                  //         style: TextStyle(
-                                  //             color: Colors.white,
-                                  //             fontSize: 15,
-                                  //             fontWeight: FontWeight.w900),
-                                  //       ),
-                                  //       Text(
-                                  //         this._controller.attendee[ApiKey.fac]
-                                  //             [ApiKey.namefac],
-                                  //         style: TextStyle(
-                                  //             color: Colors.white,
-                                  //             fontSize: 13,
-                                  //             fontWeight: FontWeight.w500),
-                                  //       ),
-                                  //     ],
-                                  //   ),
-                                  // ),
+                                  Container(
+                                    width: maxwidth * 0.45,
+                                    padding: EdgeInsets.all(5),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "email",
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w900,
+                                          ),
+                                        ),
+                                        Text(
+                                          this._controller.attendee["attendee"]
+                                              [ApiKey.email],
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   Container(
                                     width: maxwidth * 0.45,
                                     padding: EdgeInsets.all(5),

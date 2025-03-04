@@ -1,16 +1,14 @@
 // ignore_for_file: file_names
 
 import 'dart:io';
-
-import 'package:checkin/utils/table.dart';
 import 'package:flutter/material.dart';
-import 'package:checkin/widgets/attendees_screen/controller/attendeescontroller.dart';
-import 'package:checkin/utils/MyAppBar.dart';
-import 'package:checkin/utils/colors.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:checkin/utils/colors.dart';
+import 'package:checkin/utils/table.dart';
+import 'package:checkin/widgets/attendees_screen/controller/attendeescontroller.dart';
+import 'package:checkin/utils/MyAppBar.dart';
 
 class Invitations extends StatefulWidget {
   const Invitations({super.key});
@@ -21,19 +19,16 @@ class Invitations extends StatefulWidget {
 
 class _InvitationsState extends State<Invitations> {
   TextEditingController searchController = TextEditingController();
-
   final AttendeeController _controller = AttendeeController();
-  int currentPage = 0;
-  // FocusNode pour le champ de recherche :
   final FocusNode _focusNode = FocusNode();
-  Future<void>? _checkinFuture;
-
+  List filteredAttendees = [];
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(() {
       setState(() {});
     });
+    fetchAttendees();
   }
 
   @override
@@ -87,18 +82,16 @@ class _InvitationsState extends State<Invitations> {
 
     var status = await Permission.storage.request();
     if (!status.isGranted) {
-      print(' Storage permission denied');
+      print('Storage permission denied');
       return;
     }
 
-    // Get Downloads directory
     Directory downloadsDir = Directory('/storage/emulated/0/Download');
     if (!downloadsDir.existsSync()) {
-      print(' Downloads folder not found');
+      print('Downloads folder not found');
       return;
     }
 
-    // Save file in Downloads folder
     final path = '${downloadsDir.path}/attendees.csv';
     final file = File(path);
     await file.writeAsString(csv);
@@ -106,15 +99,15 @@ class _InvitationsState extends State<Invitations> {
     print('CSV saved at: $path');
   }
 
-  fetchAttendees({String search = ""}) async {
+  Future<void> fetchAttendees({String search = ""}) async {
     try {
       final response = await _controller.fetchAttendees(search: search);
-      print("response:**** " + _controller.attendees.toString());
-
-      return response;
+      setState(() {
+        filteredAttendees = _controller.attendees;
+      });
     } catch (e) {
       print("Erreur: $e");
-    } finally {}
+    }
   }
 
   Future<void> _refreshData() async {
@@ -130,17 +123,17 @@ class _InvitationsState extends State<Invitations> {
         leading: false,
         action: [
           IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "/addattendee");
-              },
-              icon: Icon(Icons.person_add_alt_1, color: Colors.grey))
+            onPressed: () {
+              Navigator.pushNamed(context, "/addattendee");
+            },
+            icon: Icon(Icons.person_add_alt_1, color: Colors.grey),
+          )
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
           children: [
-            // Champ de recherche
             Container(
               color: Background,
               padding: const EdgeInsets.only(bottom: 10, top: 20),
@@ -149,19 +142,20 @@ class _InvitationsState extends State<Invitations> {
                 decoration: InputDecoration(
                   hintText: 'Enter ticket code',
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.search),
+                    icon: Icon(Icons.search),
                     color: _focusNode.hasFocus ? Primary : Colors.grey,
                     onPressed: () {
-                      print(
-                          "9999999999999999999999999999------------------------------------0");
-                      print(searchController.text.trim());
-                      // Lancer la recherche uniquement si le champ n'est pas vide
-                      if (searchController.text.trim().isNotEmpty) {
-                        fetchAttendees(search: searchController.text.trim());
-                        setState(() {});
-                      } else {
-                        fetchAttendees();
-                      }
+                      String query = searchController.text.trim();
+                      setState(() {
+                        if (query.isNotEmpty) {
+                          filteredAttendees = _controller.attendees.where((attendee) {
+                            return attendee['name'].contains(query) ||
+                                   attendee['ticket']['ticketNo'].contains(query);
+                          }).toList();
+                        } else {
+                          filteredAttendees = _controller.attendees;
+                        }
+                      });
                     },
                   ),
                   border: const UnderlineInputBorder(
@@ -176,14 +170,6 @@ class _InvitationsState extends State<Invitations> {
                   fillColor: Colors.white,
                   filled: true,
                 ),
-                // onChanged: (value) {
-                //   // Lancer la recherche uniquement si le champ n'est pas vide
-                //   if (searchController.text.trim().isNotEmpty) {
-                //     fetchAttendees(search: searchController.text.trim());
-                //   } else {
-                //     fetchAttendees(); // Requête par défaut si aucun texte
-                //   }
-                // },
               ),
             ),
             const SizedBox(height: 5),
@@ -191,41 +177,43 @@ class _InvitationsState extends State<Invitations> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "  " + _controller.attendees.length.toString() + " attendees",
+                  "  " + _controller.totalItems.toString()+ " attendees",
                   style: TextStyle(color: Primary, fontSize: 15),
                 ),
                 ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Primary),
-                    ),
-                    onPressed: () {
-                      exportDataToCsv(
-                          _controller.attendees.cast<Map<String, dynamic>>());
-                    },
-                    child: Row(
-                      children: [
-                        Text("Export"),
-                        SizedBox(width: 5),
-                        Icon(Icons.file_download_outlined, size: 20)
-                      ],
-                    )),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Primary),
+                  ),
+                  onPressed: () {
+                    exportDataToCsv(filteredAttendees.cast<Map<String, dynamic>>());
+                  },
+                  child: Row(
+                    children: [
+                      Text("Export"),
+                      SizedBox(width: 5),
+                      Icon(Icons.file_download_outlined, size: 20),
+                    ],
+                  ),
+                ),
               ],
             ),
-            FutureBuilder(
-              future: fetchAttendees(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else {
-                  return RefreshIndicator(
-                      onRefresh: _refreshData,
-                      child: Container(
-                          height: MediaQuery.of(context).size.height * 0.7,
-                          child: MyTable(tickets: _controller.attendees)));
-                }
-              },
+            RefreshIndicator(
+              onRefresh: _refreshData,
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: FutureBuilder(
+                  future: _controller.fetchAttendees(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      return MyTable(tickets: filteredAttendees);
+                    }
+                  },
+                ),
+              ),
             ),
           ],
         ),

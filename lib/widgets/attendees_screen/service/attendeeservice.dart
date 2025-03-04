@@ -6,7 +6,7 @@ class AttendeeService {
 
   AttendeeService() : api = HttpClient();
 
-  Future<List<Map<String, dynamic>>> getAttendees({
+  Future<Map<String, dynamic>> getAttendees({
     int page = 1,
     String search = "",
   }) async {
@@ -27,21 +27,23 @@ class AttendeeService {
       // Return the list of attendees
 
       if (search.isNotEmpty) {
-        List<Map<String, dynamic>> p = [];
+        Map<String, dynamic> p = {};
 
-        p.add(response);
+        p=response;
         return p;
       }
 
       if (response != null && response['data'] != null) {
-        return List<Map<String, dynamic>>.from(response['data']);
+       
+
+        return response;
       } else {
         print("Error: Response does not contain 'data' key or is invalid");
-        return [];
+        return {};
       }
     } catch (e) {
       print("Error fetching attendees: $e");
-      return [];
+      return {};
     }
   }
 }

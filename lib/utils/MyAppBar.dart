@@ -16,7 +16,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: action,
       leading: leading
           ? IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.popAndPushNamed(context, "/"),
               icon: const Icon(Icons.arrow_back),
               color: const Color.fromARGB(255, 86, 86, 86),
             )

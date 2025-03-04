@@ -1,9 +1,8 @@
 import 'package:checkin/widgets/Scan_Page/view/ScanPage.dart';
 import 'package:checkin/utils/navbar.dart';
 import 'package:checkin/widgets/addAttendee/view/AddAttendeeView.dart';
-import 'package:checkin/widgets/attendees_screen/view/checkedAttendees.dart';
 import 'package:checkin/widgets/attendees_screen/view/invitationsPage.dart';
-import 'package:checkin/widgets/statics_screen/view/staticsView.dart';
+import 'package:checkin/widgets/statistics_Page/view/statisticsView.dart';
 import 'package:checkin/widgets/ticket_page/view/ticketPage.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
         '/scan': (context) => ScannerScreen(),
         '/invitations': (context) => Invitations(),
         '/ticket': (context) => MyTicketView(),
-        '/addattendee': (context) => AddAttendeeView()
+        '/addattendee': (context) => AddAttendeeView(),
       },
       debugShowCheckedModeBanner: false,
       initialRoute: '/',

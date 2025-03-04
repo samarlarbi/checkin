@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:blobs/blobs.dart';
+import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/utils/colors.dart';
 import 'package:checkin/utils/inputdialog.dart';
 import 'package:checkin/utils/myButton.dart';
@@ -8,6 +9,7 @@ import 'package:checkin/widgets/Scan_Page/scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import '../../ticket_page/controller/controller.dart';
 import '../../ticket_page/view/ticketPage.dart';
 
 class ScannerScreen extends StatefulWidget {
@@ -23,10 +25,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
   TextEditingController controller = TextEditingController();
 
   // Ensure to pass a token here
-  final CheckinController _controller = CheckinController(
-      token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiRUxfJGlSX2tiaVIiLCJpYXQiOjE3Mzc0MTE2NDR9.INKEJw81Q9UyYbVlWGgj3Thk-K7pyVDslLOutY5kJzg");
-
+  final ConfirmGeneralCheckinController _controller =
+      ConfirmGeneralCheckinController();
   @override
   void dispose() {
     super.dispose();
@@ -40,7 +40,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Future<void> _fetchAttendee(String code) async {
     print(
         "--------------------------------------------- \n Fetching attendee with code: $code");
-    await _controller.fetchCheckin(code);
+    await _controller.getTiketbyTicketno(code);
     setState(() {});
 
     if (_controller.attendee.isEmpty) {
@@ -83,7 +83,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MyTicketView(ticketno: _controller.attendee)),
+            builder: (context) => MyTicketView(ticketno: _controller.attendee[ApiKey.ticketno])),
       );
     }
   }
@@ -98,7 +98,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
         barcodeScanRes = barcodeScanRess;
       });
       if (barcodeScanRes != "-1") {
-        await _fetchAttendee(barcodeScanRes);
+        await _controller.getTiketbyQRcode(barcodeScanRess);
+        setState(() {});
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
@@ -181,7 +182,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 color: Primary,
                 width: MediaQuery.of(context).size.width * 0.7,
               ),
-             
+              const SizedBox(height:10),
+              DialogButton(
+                onpressed: (String? code) {
+                  print("-onpressed");
+                  print(code);
+                  if (code != null) {
+                    _fetchAttendee(code);
+                  }
+                },
+                controller: controller,
+              )
             ],
           ),
         ),

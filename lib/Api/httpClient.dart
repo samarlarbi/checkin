@@ -26,10 +26,18 @@ class HttpClient {
   // POST request
   Future<dynamic> post(String endpoint,
       {Map<String, String>? headers, Object? body}) async {
+    print(body);
     try {
       final Uri url = Uri.parse('$baseUrl/$endpoint');
+      print(url);
       final response = await http
-          .post(url, headers: headers, body: body)
+          .post(url,
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization":
+                    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
+              },
+              body: body)
           .timeout(Duration(seconds: timeoutDuration));
 
       return _handleResponse(response);
@@ -68,6 +76,7 @@ class HttpClient {
   }
 
   // PATCH request
+
   Future<dynamic> patch(String endpoint,
       {Map<String, String>? headers, Object? body}) async {
     try {
@@ -75,11 +84,11 @@ class HttpClient {
       final response = await http
           .patch(url,
               headers: {
-                ...?headers,
+                "Content-Type": "application/json",
                 "Authorization":
                     "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
               },
-              body: body)
+              body: jsonEncode(body))
           .timeout(Duration(seconds: timeoutDuration));
 
       return _handleResponse(response);
