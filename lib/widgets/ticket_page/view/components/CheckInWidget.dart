@@ -1,4 +1,5 @@
 import 'dart:convert'; // Nécessaire pour encoder en JSON
+import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -36,8 +37,7 @@ class _CheckInWidgetState extends State<CheckInWidget> {
         headers: {
           "Content-Type": "application/json",
           "Authorization":
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiRUxfJGlSX2tiaVIiLCJpYXQiOjE3Mzc0MTE2NDR9.INKEJw81Q9UyYbVlWGgj3Thk-K7pyVDslLOutY5kJzg"
-        },
+ApiKey.token,        },
         body: json.encode({
           "ticketId": widget.ticketId,
         }),

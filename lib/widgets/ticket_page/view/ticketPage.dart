@@ -24,6 +24,7 @@ class _MyTicketViewState extends State<MyTicketView> {
   Future<void>? _checkinFuture;
   Future<void>? _checkinFuture2;
   Future<void>? _checkinDinnerFuture;
+  String errorMessage = ""; // Track errors to display in UI
 
   Future<void>? _checkinWorkshopFuture;
   var test;
@@ -38,9 +39,10 @@ class _MyTicketViewState extends State<MyTicketView> {
       print(code);
       await _controller.getTiketbyTicketno(code);
     } catch (e) {
-      showAboutDialog(context: context, children: [
-        Text("Error fetching attendee data: $e"),
-      ]);
+      print("waaaaaaaaaaa");
+      setState(() {
+        errorMessage = "Error fetching attendee data , check your connection !";
+      });
 
       print(_controller.errorMessage);
     } finally {}
@@ -103,10 +105,32 @@ class _MyTicketViewState extends State<MyTicketView> {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
+            } else if (snapshot.hasError || errorMessage.isNotEmpty) {
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline,
+                              color: const Color.fromARGB(255, 108, 106, 106),
+                              size: 50),
+                          const SizedBox(height: 10),
+                          Text(
+                            errorMessage.isNotEmpty
+                                ? errorMessage
+                                : 'Error: ${snapshot.error}',
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 108, 106, 106),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    )
+                  ]);
             } else {
               return Container(
                 color: Background,

@@ -14,8 +14,7 @@ class ConfirmGeneralCheckinService {
       print(response);
       return response;
     } catch (e) {
-      print("Error fetching ticket: $e");
-      return {};
+      throw Exception("Error fetching ticket: $e");
     }
   }
 
@@ -27,8 +26,7 @@ class ConfirmGeneralCheckinService {
       print(response);
       return response;
     } catch (e) {
-      print("Error fetching ticket: $e");
-      return {};
+      throw Exception("Error fetching ticket: $e");
     }
   }
 
@@ -40,8 +38,7 @@ class ConfirmGeneralCheckinService {
       print(response);
       return response;
     } catch (e) {
-      print("Error fetching ticket: $e");
-      return {};
+      throw Exception("Error fetching ticket: $e");
     }
   }
 
@@ -55,8 +52,7 @@ class ConfirmGeneralCheckinService {
       print(response);
       return response;
     } catch (e) {
-      print("Error fetching ticket: $e");
-      return {};
+      throw Exception("Error fetching ticket: $e");
     }
   }
 
@@ -70,8 +66,7 @@ class ConfirmGeneralCheckinService {
       print(response);
       return response;
     } catch (e) {
-      print("Error fetching ticket: $e");
-      return {};
+      throw Exception("Error fetching ticket: $e");
     }
   }
 }

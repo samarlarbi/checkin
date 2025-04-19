@@ -18,22 +18,19 @@ class AttendeeController {
 
     try {
       // Fetch data from the service
-      Map<String, dynamic> jsonData =
-          await attendeeService.getAttendees(search: search);
-
-      print("Fetched JSON data: $jsonData");
+      Map<String, dynamic> jsonData = await attendeeService.getAttendees();
 
       if (jsonData.isEmpty) {
         print("No more attendees found. Current attendees list: $attendees");
+        throw Exception("No attendees found");
       } else {
         attendees = jsonData["data"].toList();
         totalItems = jsonData["totalItems"];
-
-        print("Updated attendees list: $attendees");
       }
     } catch (e) {
       errorMessage = "Error fetching data: $e";
       print(errorMessage);
+      throw Exception("Error fetching data" + e.toString());
     }
 
     isLoading = false;

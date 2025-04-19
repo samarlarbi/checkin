@@ -3,8 +3,7 @@ import 'package:checkin/Api/EndPoint.dart';
 import 'package:http/http.dart' as http;
 
 class HttpClient {
-  static const String baseUrl =
-      EndPoint.baseUrl; // Replace with your API base URL.
+  static String baseUrl = EndPoint.baseUrl; // Replace with your API base URL.
   final int timeoutDuration = 15; // Timeout duration in seconds
 
   // GET request
@@ -13,8 +12,8 @@ class HttpClient {
       final Uri url = Uri.parse('$baseUrl/$endpoint');
       final response = await http.get(url, headers: {
         ...?headers,
-        "Authorization":
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
+        "Content-Type": "application/json",
+        "Authorization": ApiKey.token,
       }).timeout(Duration(seconds: timeoutDuration));
 
       return _handleResponse(response);
@@ -34,8 +33,7 @@ class HttpClient {
           .post(url,
               headers: {
                 "Content-Type": "application/json",
-                "Authorization":
-                    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
+                "Authorization": ApiKey.token,
               },
               body: body)
           .timeout(Duration(seconds: timeoutDuration));
@@ -85,8 +83,7 @@ class HttpClient {
           .patch(url,
               headers: {
                 "Content-Type": "application/json",
-                "Authorization":
-                    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA",
+                "Authorization": ApiKey.token,
               },
               body: jsonEncode(body))
           .timeout(Duration(seconds: timeoutDuration));

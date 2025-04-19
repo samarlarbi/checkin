@@ -48,11 +48,24 @@ dependencies:
   path_provider: ^2.1.2
   permission_handler: ^11.0.1
   fl_chart: ^0.63.0
+  flutter_dotenv: ^5.1.0
+  connectivity_plus: 2.3.0
+  get: ^4.6.5
+  circle_nav_bar: ^2.2.0
+  flutter_native_splash: ^2.3.7
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  image_path: "assets/themaze.jpg"
+  android: true
+  ios: true
+  web: true
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -77,7 +90,8 @@ flutter:
   assets:
     - assets/mic.png
     - assets/homeimge.png
-    - assets/maze.png
+    - assets/themaze.jpg
+    - assets/themaze3.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

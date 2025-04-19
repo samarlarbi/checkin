@@ -16,30 +16,13 @@ class StaticsView extends StatefulWidget {
 class _StaticsViewState extends State<StaticsView> {
   final AttendeeController _controller = AttendeeController();
   final AddAttendeeController _controller2 = AddAttendeeController();
+  String errorMessage = ""; // Track errors to display in UI
 
   Future<void>? _checkinFuture;
 
   List<Map<String, dynamic>> legends = [];
 
-  late final List<Map<String, dynamic>> statics = [
-    {
-      "titre": "Attendees",
-      "icon": Icons.people_alt_rounded,
-      "value": _controller.attendees.length
-    },
-    {
-      "titre": "checked",
-      "icon": Icons.check_circle_outlined,
-      "value": _controller.attendees.where((attendee) {
-        return attendee["ticket"]["done"] == true;
-      }).length
-    },
-    {
-      "titre": "Teams",
-      "icon": Icons.groups_2,
-      "value": _controller2.form["teams"].length
-    },
-  ];
+  List<Map<String, dynamic>> statics = [];
 
   @override
   void initState() {
@@ -53,6 +36,27 @@ class _StaticsViewState extends State<StaticsView> {
 
       await _controller2.getForm();
 
+      setState(() {
+        statics = [
+          {
+            "titre": "Attendees",
+            "icon": Icons.people_alt_rounded,
+            "value": _controller.totalItems
+          },
+          {
+            "titre": "checked",
+            "icon": Icons.check_circle_outlined,
+            "value": _controller.attendees.where((attendee) {
+              return attendee["ticket"]["done"] == true;
+            }).length
+          },
+          {
+            "titre": "Teams",
+            "icon": Icons.groups_2,
+            "value": _controller2.form["teams"].length
+          },
+        ];
+      });
       Map<String, int> workshopAttendance = {};
 
       for (var attendee in _controller.attendees) {
@@ -107,6 +111,7 @@ class _StaticsViewState extends State<StaticsView> {
     } catch (e) {
       setState(() {
         _checkinFuture = null;
+        errorMessage = 'Failed to get data';
       });
       print("Error: $e");
     }
@@ -125,8 +130,29 @@ class _StaticsViewState extends State<StaticsView> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasError || errorMessage.isNotEmpty) {
+            return Center(
+                child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline,
+                      color: const Color.fromARGB(255, 108, 106, 106),
+                      size: 50),
+                  const SizedBox(height: 10),
+                  Text(
+                    errorMessage.isNotEmpty
+                        ? errorMessage
+                        : 'Error: ${snapshot.error}',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 108, 106, 106),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ));
           } else {
             return Padding(
               padding: const EdgeInsets.all(15.0),

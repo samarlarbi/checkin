@@ -38,12 +38,57 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   Future<void> _fetchAttendee(String code) async {
-    print(
-        "--------------------------------------------- \n Fetching attendee with code: $code");
-    await _controller.getTiketbyTicketno(code);
-    setState(() {});
+    try {
+      print(
+          "--------------------------------------------- \n Fetching attendee with code: $code");
+      await _controller.getTiketbyTicketno(code);
+      setState(() {});
 
-    if (_controller.attendee.isEmpty) {
+      if (_controller.attendee.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Check-in Failed'),
+              content: Text('Check-in failed for code: $code'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Display more useful attendee information in the dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Check-in Success'),
+              content: Text('Attendee: ${_controller.attendee['name']}'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => MyTicketView(
+                  ticketno: _controller.attendee[ApiKey.ticketno])),
+        );
+      }
+    } on Exception catch (e) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -61,30 +106,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
           );
         },
       );
-    } else {
-      // Display more useful attendee information in the dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Check-in Success'),
-            content: Text('Attendee: ${_controller.attendee['name']}'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => MyTicketView(ticketno: _controller.attendee[ApiKey.ticketno])),
-      );
     }
   }
 
@@ -101,14 +122,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
         await _controller.getTiketbyQRcode(barcodeScanRess);
         setState(() {});
       }
-    } on PlatformException {
+    } catch (e) {
       barcodeScanRes = 'Failed to get platform version.';
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('Failed to scan barcode. Please try again.'),
+            content: Text('Failed to scan QR_code. Please try again.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -182,7 +203,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 color: Primary,
                 width: MediaQuery.of(context).size.width * 0.7,
               ),
-              const SizedBox(height:10),
+              const SizedBox(height: 10),
               DialogButton(
                 onpressed: (String? code) {
                   print("-onpressed");

@@ -49,13 +49,14 @@ class MyTable extends StatelessWidget {
             trailing: IconButton(
               icon: Icon(Icons.keyboard_double_arrow_right_rounded),
               onPressed: () {
-                Navigator.push(
+                Navigator.popAndPushNamed(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => MyTicketView(
-                          ticketno: tickets[index].containsKey("ticket")
-                              ? tickets[index]["ticket"]["ticketNo"]
-                              : tickets[index]["ticketNo"])),
+                  '/myTicketView', // Your route name
+                  arguments: {
+                    'ticketno': tickets[index].containsKey("ticket")
+                        ? tickets[index]["ticket"]["ticketNo"]
+                        : tickets[index]["ticketNo"]
+                  },
                 );
               },
             ),

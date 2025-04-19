@@ -21,7 +21,8 @@ class AddAttendeeController {
       print(form["workshops"]);
     } catch (e) {
       errorMessage = "Error fetching data: $e";
-      print(errorMessage);
+            throw Exception("Error fetching form: $e");
+
     }
 
     isLoading = false;
@@ -37,7 +38,7 @@ class AddAttendeeController {
       await addattendeeService.addAttendee(attendee);
     } catch (e) {
       errorMessage = "Error add attendee: $e";
-      print(errorMessage);
+      throw Exception("Error adding attendee : $e");
     }
 
     isLoading = false;

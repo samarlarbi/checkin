@@ -7,9 +7,9 @@ class AddAttendeeService {
 
   AddAttendeeService() : api = HttpClient();
 
-  Future<dynamic> addAttendee( attendee) async {
+  Future<dynamic> addAttendee(attendee) async {
     try {
-            print("service---$attendee");
+      print("service---$attendee");
       String endpoint = EndPoint.registration;
       var response = await api.post(endpoint, body: attendee);
       print("attendde-----------------");
@@ -17,7 +17,7 @@ class AddAttendeeService {
       return response;
     } catch (e) {
       print("Error fetching form: $e");
-      return {};
+      throw Exception("Error adding attendee: $e");
     }
   }
 
@@ -30,7 +30,7 @@ class AddAttendeeService {
       return response;
     } catch (e) {
       print("Error fetching form: $e");
-      return {};
+      throw Exception("Error adding attendee: $e");
     }
   }
 }

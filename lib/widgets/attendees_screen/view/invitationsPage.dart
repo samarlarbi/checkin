@@ -1,5 +1,3 @@
-// ignore_for_file: file_names
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,96 +20,151 @@ class _InvitationsState extends State<Invitations> {
   final AttendeeController _controller = AttendeeController();
   final FocusNode _focusNode = FocusNode();
   List filteredAttendees = [];
+  String errorMessage = ""; // Track errors to display in UI
+  Future<void>? futur;
+  // Show an error dialog for permission requests
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() {
-      setState(() {});
-    });
-    fetchAttendees();
+    futur = _refreshData();
   }
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  Future<void> _showPermissionDialog() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Permission Denied"),
+        content: Text(
+            "Storage permission is required to export data. Please enable it in your device settings."),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              openAppSettings(); // Open app settings to allow the user to change permissions
+            },
+            child: Text("Open Settings"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> exportDataToCsv(List<Map<String, dynamic>> attendees) async {
-    List<List<dynamic>> csvData = [
-      [
-        'ID',
-        'Name',
-        'Email',
-        'Phone',
-        'Study Level',
-        'Specialization',
-        'Faculty',
-        'Team',
-        'Ticket No',
-        'Done',
-        'Had Meal',
-        'Workshops Attended'
-      ]
-    ];
+    try {
+      // Request storage permission
+      var status = await Permission.storage.request();
 
-    for (var attendee in attendees) {
-      String workshopsAttended = attendee['ticket']['workshops']
-          .where((w) => w['hasAttended'] == true)
-          .map((w) => w['workshop']['name'])
-          .join(', ');
+      if (!status.isGranted) {
+        // If permission is denied, show an error message
+        _showPermissionDialog();
+        return;
+      }
 
-      csvData.add([
-        attendee['id'],
-        attendee['name'],
-        attendee['email'],
-        attendee['phone'],
-        attendee['studyLevel'],
-        attendee['specialization'],
-        attendee['fac']['name'],
-        attendee['team']['name'],
-        attendee['ticket']['ticketNo'],
-        attendee['ticket']['done'],
-        attendee['ticket']['hadMeal'],
-        workshopsAttended,
-      ]);
+      // Prepare CSV data
+      List<List<dynamic>> csvData = [
+        [
+          'ID',
+          'Name',
+          'Email',
+          'Phone',
+          'Study Level',
+          'Specialization',
+          'Faculty',
+          'Team',
+          'Ticket No',
+          'Done',
+          'Had Meal',
+          'Workshops Attended'
+        ]
+      ];
+
+      // Loop through attendees and prepare CSV rows
+      for (var attendee in attendees) {
+        String workshopsAttended = attendee['ticket']['workshops']
+            .where((w) => w['hasAttended'] == true)
+            .map((w) => w['workshop']['name'])
+            .join(', ');
+
+        csvData.add([
+          attendee['id'] ?? 'N/A',
+          attendee['name'] ?? 'N/A',
+          attendee['email'] ?? 'N/A',
+          attendee['phone'] ?? 'N/A',
+          attendee['studyLevel'] ?? 'N/A',
+          attendee['specialization'] ?? 'N/A',
+          attendee['fac']['name'] ?? 'N/A',
+          attendee['team']['name'] ?? 'N/A',
+          attendee['ticket']['ticketNo'] ?? 'N/A',
+          attendee['ticket']['done'] ?? 'N/A',
+          attendee['ticket']['hadMeal'] ?? 'N/A',
+          workshopsAttended.isEmpty ? 'None' : workshopsAttended,
+        ]);
+      }
+
+      // Convert to CSV format
+      String csv = const ListToCsvConverter().convert(csvData);
+
+      // Get the application documents directory path
+      final directory = await getApplicationDocumentsDirectory();
+      final path =
+          '${directory.path}/attendees_data.csv'; // Save the file as attendees_data.csv
+      final file = File(path);
+
+      // Write the CSV data to the file
+      await file.writeAsString(csv);
+
+      // Confirm the file has been saved
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('CSV exported to: $path')),
+      );
+    } catch (e) {
+      // Handle any exceptions
+      print('Error exporting data');
+      setState(() {
+        errorMessage = 'Error exporting data';
+      });
     }
-
-    String csv = const ListToCsvConverter().convert(csvData);
-
-    var status = await Permission.storage.request();
-    if (!status.isGranted) {
-      print('Storage permission denied');
-      return;
-    }
-
-    Directory downloadsDir = Directory('/storage/emulated/0/Download');
-    if (!downloadsDir.existsSync()) {
-      print('Downloads folder not found');
-      return;
-    }
-
-    final path = '${downloadsDir.path}/attendees.csv';
-    final file = File(path);
-    await file.writeAsString(csv);
-
-    print('CSV saved at: $path');
   }
 
   Future<void> fetchAttendees({String search = ""}) async {
     try {
-      final response = await _controller.fetchAttendees(search: search);
+      await _controller.fetchAttendees();
+
       setState(() {
         filteredAttendees = _controller.attendees;
+        errorMessage =
+            filteredAttendees.length == 0 ? "No attendees found" : "";
       });
     } catch (e) {
-      print("Erreur: $e");
+      setState(() {
+        errorMessage = 'Failed to fetch attendees';
+      });
+      return;
     }
   }
 
   Future<void> _refreshData() async {
-    fetchAttendees(search: searchController.text.trim());
+    try {
+      await fetchAttendees();
+      print(_controller.attendees);
+      setState(() {
+        filteredAttendees = _controller.attendees;
+        errorMessage =
+            filteredAttendees.length == 0 ? "No attendees found" : "";
+      });
+    } catch (e) {
+      print(e.toString());
+      setState(() {
+        errorMessage = 'Failed to refresh data';
+      });
+      return;
+    }
   }
 
   @override
@@ -136,7 +189,7 @@ class _InvitationsState extends State<Invitations> {
           children: [
             Container(
               color: Background,
-              padding: const EdgeInsets.only(bottom: 10, top: 20),
+              padding: EdgeInsets.only(bottom: 10, top: 20),
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
@@ -148,9 +201,10 @@ class _InvitationsState extends State<Invitations> {
                       String query = searchController.text.trim();
                       setState(() {
                         if (query.isNotEmpty) {
-                          filteredAttendees = _controller.attendees.where((attendee) {
+                          filteredAttendees =
+                              _controller.attendees.where((attendee) {
                             return attendee['name'].contains(query) ||
-                                   attendee['ticket']['ticketNo'].contains(query);
+                                attendee['ticket']['ticketNo'].contains(query);
                           }).toList();
                         } else {
                           filteredAttendees = _controller.attendees;
@@ -177,7 +231,7 @@ class _InvitationsState extends State<Invitations> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "  " + _controller.totalItems.toString()+ " attendees",
+                  "  " + _controller.totalItems.toString() + " attendees",
                   style: TextStyle(color: Primary, fontSize: 15),
                 ),
                 ElevatedButton(
@@ -185,7 +239,14 @@ class _InvitationsState extends State<Invitations> {
                     backgroundColor: MaterialStateProperty.all(Primary),
                   ),
                   onPressed: () {
-                    exportDataToCsv(filteredAttendees.cast<Map<String, dynamic>>());
+                    if (filteredAttendees.isNotEmpty) {
+                      exportDataToCsv(
+                          filteredAttendees.cast<Map<String, dynamic>>());
+                    } else {
+                      setState(() {
+                        errorMessage = 'No attendees available to export.';
+                      });
+                    }
                   },
                   child: Row(
                     children: [
@@ -197,24 +258,51 @@ class _InvitationsState extends State<Invitations> {
                 ),
               ],
             ),
-            RefreshIndicator(
-              onRefresh: _refreshData,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.7,
-                child: FutureBuilder(
-                  future: _controller.fetchAttendees(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else {
-                      return MyTable(tickets: filteredAttendees);
-                    }
-                  },
-                ),
+            Expanded(
+                child: RefreshIndicator(
+              onRefresh: () {
+                setState(() {
+                  futur = _refreshData();
+                });
+                return futur ?? Future.value();
+              },
+              child: FutureBuilder(
+                future: futur,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError || errorMessage.isNotEmpty) {
+                    return ListView(children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: const Color.fromARGB(255, 108, 106, 106),
+                                size: 50),
+                            const SizedBox(height: 10),
+                            Text(
+                              errorMessage.isNotEmpty
+                                  ? errorMessage
+                                  : 'Error: ${snapshot.error}',
+                              style: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 108, 106, 106),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                    ]);
+                  } else {
+                    return MyTable(tickets: filteredAttendees);
+                  }
+                },
               ),
-            ),
+            ))
           ],
         ),
       ),

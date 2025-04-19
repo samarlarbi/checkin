@@ -35,7 +35,7 @@ class ConfirmGeneralCheckinController with ChangeNotifier {
       return attendees;
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";
-      print(_errorMessage);
+      throw Exception("Error fetching ticket: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -57,7 +57,7 @@ class ConfirmGeneralCheckinController with ChangeNotifier {
       return attendees;
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";
-      print(_errorMessage);
+      throw Exception("Error fetching ticket: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -68,7 +68,7 @@ class ConfirmGeneralCheckinController with ChangeNotifier {
   Future<Map<String, dynamic>> ConfirmDinner(ticketno) async {
     _isLoading = true;
     _errorMessage = '';
-    notifyListeners();
+    notifyListeners ();
 
     try {
       var attendees =
@@ -79,7 +79,7 @@ class ConfirmGeneralCheckinController with ChangeNotifier {
       return attendees;
     } catch (e) {
       _errorMessage = "Error fetching attendee data: $e";
-      print(_errorMessage);
+      throw Exception("Error fetching ticket: $e");
     } finally {
       _isLoading = false;
       notifyListeners();

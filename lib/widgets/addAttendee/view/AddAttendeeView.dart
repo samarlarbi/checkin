@@ -33,11 +33,13 @@ class _AddAttendeeViewState extends State<AddAttendeeView> {
   String? studyLevel;
   List<String> selectedWorkshops = [];
   Future<void>? submitFuture;
+  Future<void>? formfuture;
+  String errorMessage = ""; // Track errors to display in UI
 
   @override
   void initState() {
     super.initState();
-    _fetchFormData();
+    formfuture = _fetchFormData();
   }
 
   Future<void> _fetchFormData() async {
@@ -49,8 +51,10 @@ class _AddAttendeeViewState extends State<AddAttendeeView> {
         facs = _controller.form["facs"];
         teams = _controller.form["teams"];
       });
-    } catch (error) {
-      print("Error fetching form data: $error");
+    } catch (e) {
+      setState(() {
+        errorMessage = 'no connection ';
+      });
     }
   }
 
@@ -74,10 +78,16 @@ class _AddAttendeeViewState extends State<AddAttendeeView> {
 
         print("Attendee Added: $jsonString");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Attendee Added!") ,backgroundColor: const Color.fromARGB(255, 120, 219, 123),),
+          SnackBar(
+            content: Text("Attendee Added!"),
+            backgroundColor: const Color.fromARGB(255, 120, 219, 123),
+          ),
         );
       } catch (e) {
         print("errooooor $e");
+        setState(() {
+          errorMessage = 'Failed to add attendee';
+        });
       }
     }
   }
@@ -85,123 +95,165 @@ class _AddAttendeeViewState extends State<AddAttendeeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(
-        title: "Add Attendee",
-        leading: true,
-      ),
-      body: workshops.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    buildTextField("Name", nameController),
-                    buildTextField("Email", emailController, isEmail: true),
-                    buildTextField("Phone", phoneController, isNumber: true),
-                    buildTextField("ticket Number", ticketNoController,
-                        isNumber: true),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: "Study Level"),
-                      value: studyLevel,
-                      items: ["FIRST", "SECOND", "THIRD"].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) =>
-                          setState(() => studyLevel = newValue),
+        appBar: MyAppBar(
+          title: "Add Attendee",
+          leading: true,
+        ),
+        body: FutureBuilder(
+            future: formfuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError || errorMessage.isNotEmpty) {
+                return ListView(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline,
+                            color: const Color.fromARGB(255, 108, 106, 106),
+                            size: 50),
+                        const SizedBox(height: 10),
+                        Text(
+                          errorMessage.isNotEmpty
+                              ? errorMessage
+                              : 'Error: ${snapshot.error}',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 108, 106, 106),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: "Specialization"),
-                      value: specialization,
-                      items: ["ENGINEER", "OTHER"].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) =>
-                          setState(() => specialization = newValue),
+                  )
+                ]);
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      children: [
+                        buildTextField("Name", nameController),
+                        buildTextField("Email", emailController, isEmail: true),
+                        buildTextField("Phone", phoneController,
+                            isNumber: true),
+                        buildTextField("ticket Number", ticketNoController,
+                            isNumber: true),
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(labelText: "Study Level"),
+                          value: studyLevel,
+                          items:
+                              ["FIRST", "SECOND", "THIRD"].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) =>
+                              setState(() => studyLevel = newValue),
+                        ),
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration:
+                              InputDecoration(labelText: "Specialization"),
+                          value: specialization,
+                          items: ["ENGINEER", "OTHER"].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) =>
+                              setState(() => specialization = newValue),
+                        ),
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(labelText: "Faculty"),
+                          value: fac,
+                          items: List<DropdownMenuItem<String>>.from(
+                            facs.map<DropdownMenuItem<String>>((value) =>
+                                DropdownMenuItem(
+                                    value: value["id"],
+                                    child: Text(value["name"]))),
+                          ),
+                          onChanged: (newValue) =>
+                              setState(() => fac = newValue),
+                        ),
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(labelText: "Teams"),
+                          value: team,
+                          items: List<DropdownMenuItem<String>>.from(
+                            teams.map<DropdownMenuItem<String>>((value) =>
+                                DropdownMenuItem(
+                                    value: value["id"],
+                                    child: Text(value["name"]))),
+                          ),
+                          onChanged: (newValue) =>
+                              setState(() => team = newValue),
+                        ),
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: "First Workshop",
+                          ),
+                          value: firstworkshop,
+                          items: List<DropdownMenuItem<String>>.from(
+                            workshops.map<DropdownMenuItem<String>>((value) =>
+                                DropdownMenuItem(
+                                    value: value["id"],
+                                    child: Text(value["name"]))),
+                          ),
+                          onChanged: (newValue) =>
+                              setState(() => firstworkshop = newValue),
+                        ),
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                              labelText: "Second Workshop",),
+                          value: secondworkshop,
+                          items: List<DropdownMenuItem<String>>.from(
+                            workshops.map<DropdownMenuItem<String>>((value) =>
+                                DropdownMenuItem(
+                                    value: value["id"],
+                                    child: Text(value["name"]))),
+                          ),
+                          onChanged: (newValue) =>
+                              setState(() => secondworkshop = newValue),
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              submitFuture = _submitForm();
+                            });
+                          },
+                          child: FutureBuilder<void>(
+                            future: submitFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else {
+                                return Text("Submit");
+                              }
+                            },
+                          ),
+                          style: ButtonStyle(
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  EdgeInsets.all(16.0)),
+                              backgroundColor:
+                                  MaterialStateProperty.all<Color>(Primary)),
+                        ),
+                      ],
                     ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: "Faculty"),
-                      value: fac,
-                      items: List<DropdownMenuItem<String>>.from(
-                        facs.map<DropdownMenuItem<String>>((value) =>
-                            DropdownMenuItem(
-                                value: value["id"],
-                                child: Text(value["name"]))),
-                      ),
-                      onChanged: (newValue) => setState(() => fac = newValue),
-                    ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: "Teams"),
-                      value: team,
-                      items: List<DropdownMenuItem<String>>.from(
-                        teams.map<DropdownMenuItem<String>>((value) =>
-                            DropdownMenuItem(
-                                value: value["id"],
-                                child: Text(value["name"]))),
-                      ),
-                      onChanged: (newValue) => setState(() => team = newValue),
-                    ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: "First Workshop"),
-                      value: firstworkshop,
-                      items: List<DropdownMenuItem<String>>.from(
-                        workshops.map<DropdownMenuItem<String>>((value) =>
-                            DropdownMenuItem(
-                                value: value["id"],
-                                child: Text(value["name"]))),
-                      ),
-                      onChanged: (newValue) =>
-                          setState(() => firstworkshop = newValue),
-                    ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: "Second Workshop"),
-                      value: secondworkshop,
-                      items: List<DropdownMenuItem<String>>.from(
-                        workshops.map<DropdownMenuItem<String>>((value) =>
-                            DropdownMenuItem(
-                                value: value["id"],
-                                child: Text(value["name"]))),
-                      ),
-                      onChanged: (newValue) =>
-                          setState(() => secondworkshop = newValue),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                                                  submitFuture = _submitForm();
-
-                        });
-                      },
-                      child: FutureBuilder<void>(
-                        future: submitFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          } else {
-                            return Text("Submit");
-                          }
-                        },
-                      ),
-                      style: ButtonStyle(
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.all(16.0)),
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Primary)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-    );
+                  ),
+                );
+              }
+            }));
   }
 
   Widget buildTextField(String label, TextEditingController controller,

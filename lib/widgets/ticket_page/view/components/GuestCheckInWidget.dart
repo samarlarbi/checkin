@@ -1,4 +1,5 @@
 import 'dart:convert'; // Pour encoder et décoder JSON
+import 'package:checkin/Api/EndPoint.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -30,8 +31,7 @@ class _GuestCheckInWidgetState extends State<GuestCheckInWidget> {
         headers: {
           "Content-Type": "application/json",
           "Authorization":
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiRUxfJGlSX2tiaVIiLCJpYXQiOjE3Mzc0MTE2NDR9.INKEJw81Q9UyYbVlWGgj3Thk-K7pyVDslLOutY5kJzg"
-        },
+ApiKey.token,        },
         body: json.encode({
           "relativeId": widget.relative['id'],
           "isCheckedIn": !isCheckedIn, // Basculer le statut actuel

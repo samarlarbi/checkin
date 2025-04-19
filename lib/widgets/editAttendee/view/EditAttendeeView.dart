@@ -55,19 +55,24 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
       await _controller.getTiketbyTicketno(code);
       setState(() {
         nameController.text = _controller.attendee["attendee"]['name'] ?? '';
-  emailController.text = _controller.attendee["attendee"]['email'] ?? '';
-  phoneController.text = _controller.attendee["attendee"]['phone'] ?? '';
-  ticketNoController.text = _controller.attendee['ticketNo']?.toString() ?? '';
+        emailController.text = _controller.attendee["attendee"]['email'] ?? '';
+        phoneController.text = _controller.attendee["attendee"]['phone'] ?? '';
+        ticketNoController.text =
+            _controller.attendee['ticketNo']?.toString() ?? '';
 
-  fac = _controller.attendee["attendee"]['facId'];
-  team = _controller.attendee["attendee"]['team']?['id'];
-  specialization = _controller.attendee["attendee"]['specialization'];
-  studyLevel = _controller.attendee["attendee"]['studyLevel'];
+        fac = _controller.attendee["attendee"]['facId'];
+        team = _controller.attendee["attendee"]['team']?['id'];
+        specialization = _controller.attendee["attendee"]['specialization'];
+        studyLevel = _controller.attendee["attendee"]['studyLevel'];
 
-  if (_controller.attendee['workshops'] != null && _controller.attendee['workshops'].isNotEmpty) {
-    firstworkshop = _controller.attendee['workshops'][0]['workshop']['id'];
-    secondworkshop = _controller.attendee['workshops'][1]['workshop']['id'];
-  } });
+        if (_controller.attendee['workshops'] != null &&
+            _controller.attendee['workshops'].isNotEmpty) {
+          firstworkshop =
+              _controller.attendee['workshops'][0]['workshop']['id'];
+          secondworkshop =
+              _controller.attendee['workshops'][1]['workshop']['id'];
+        }
+      });
     } catch (e) {
       showAboutDialog(context: context, children: [
         Text("Error fetching attendee data: $e"),
@@ -118,24 +123,26 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      leading: IconButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => MyTicketView(ticketno: _controller.attendee['ticketNo'].toString(),)),
-                (Route<dynamic> route) => false,
-              ),
-              icon: const Icon(Icons.arrow_back),
-              color: const Color.fromARGB(255, 86, 86, 86),
-            )
-        ,
-      title: Text(
-       "Edit Information",
-        style: const TextStyle(color: Color.fromARGB(255, 69, 69, 69)),
+        leading: IconButton(
+          onPressed: () => Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MyTicketView(
+                      ticketno: _controller.attendee['ticketNo'].toString(),
+                    )),
+            (Route<dynamic> route) => false,
+          ),
+          icon: const Icon(Icons.arrow_back),
+          color: const Color.fromARGB(255, 86, 86, 86),
+        ),
+        title: Text(
+          "Edit Information",
+          style: const TextStyle(color: Color.fromARGB(255, 69, 69, 69)),
+        ),
+        centerTitle: true,
+        backgroundColor: Background,
+        elevation: 0,
       ),
-      centerTitle: true,
-      backgroundColor: Background,
-      elevation: 0,
-    ),
       body: FutureBuilder(
         future: _attendeeFuture,
         builder: (context, snapshot) {
@@ -153,7 +160,8 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
                     buildTextField("Name", nameController),
                     buildTextField("Email", emailController, isEmail: true),
                     buildTextField("Phone", phoneController, isNumber: true),
-                    buildTextField("Ticket Number", ticketNoController, isNumber: true),
+                    buildTextField("Ticket Number", ticketNoController,
+                        isNumber: true),
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(labelText: "Study Level"),
                       value: studyLevel,
@@ -163,9 +171,11 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
                           child: Text(value),
                         );
                       }).toList(),
-                      onChanged: (newValue) => setState(() => studyLevel = newValue),
+                      onChanged: (newValue) =>
+                          setState(() => studyLevel = newValue),
                     ),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: InputDecoration(labelText: "Specialization"),
                       value: specialization,
                       items: ["ENGINEER", "OTHER"].map((String value) {
@@ -174,51 +184,62 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
                           child: Text(value),
                         );
                       }).toList(),
-                      onChanged: (newValue) => setState(() => specialization = newValue),
+                      onChanged: (newValue) =>
+                          setState(() => specialization = newValue),
                     ),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: InputDecoration(labelText: "Faculty"),
                       value: fac,
                       items: List<DropdownMenuItem<String>>.from(
-                        facs.map<DropdownMenuItem<String>>((value) => DropdownMenuItem(
-                          value: value["id"],
-                          child: Text(value["name"]),
-                        )),
+                        facs.map<DropdownMenuItem<String>>(
+                            (value) => DropdownMenuItem(
+                                  value: value["id"],
+                                  child: Text(value["name"]),
+                                )),
                       ),
                       onChanged: (newValue) => setState(() => fac = newValue),
                     ),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: InputDecoration(labelText: "Teams"),
                       value: team,
                       items: List<DropdownMenuItem<String>>.from(
-                        teams.map<DropdownMenuItem<String>>((value) => DropdownMenuItem(
-                          value: value["id"],
-                          child: Text(value["name"]),
-                        )),
+                        teams.map<DropdownMenuItem<String>>(
+                            (value) => DropdownMenuItem(
+                                  value: value["id"],
+                                  child: Text(value["name"]),
+                                )),
                       ),
                       onChanged: (newValue) => setState(() => team = newValue),
                     ),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: InputDecoration(labelText: "First Workshop"),
                       value: firstworkshop,
                       items: List<DropdownMenuItem<String>>.from(
-                        workshops.map<DropdownMenuItem<String>>((value) => DropdownMenuItem(
-                          value: value["id"],
-                          child: Text(value["name"]),
-                        )),
+                        workshops.map<DropdownMenuItem<String>>(
+                            (value) => DropdownMenuItem(
+                                  value: value["id"],
+                                  child: Text(value["name"]),
+                                )),
                       ),
-                      onChanged: (newValue) => setState(() => firstworkshop = newValue),
+                      onChanged: (newValue) =>
+                          setState(() => firstworkshop = newValue),
                     ),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: InputDecoration(labelText: "Second Workshop"),
                       value: secondworkshop,
                       items: List<DropdownMenuItem<String>>.from(
-                        workshops.map<DropdownMenuItem<String>>((value) => DropdownMenuItem(
-                          value: value["id"],
-                          child: Text(value["name"]),
-                        )),
+                        workshops.map<DropdownMenuItem<String>>(
+                            (value) => DropdownMenuItem(
+                                  value: value["id"],
+                                  child: Text(value["name"]),
+                                )),
                       ),
-                      onChanged: (newValue) => setState(() => secondworkshop = newValue),
+                      onChanged: (newValue) =>
+                          setState(() => secondworkshop = newValue),
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
@@ -230,7 +251,8 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
                       child: FutureBuilder<void>(
                         future: submitFuture,
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return CircularProgressIndicator();
                           } else {
                             return Text("Submit");
@@ -238,8 +260,10 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
                         },
                       ),
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(16.0)),
-                        backgroundColor: MaterialStateProperty.all<Color>(Primary),
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                            EdgeInsets.all(16.0)),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Primary),
                       ),
                     ),
                   ],
@@ -252,11 +276,14 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, {bool isEmail = false, bool isNumber = false}) {
+  Widget buildTextField(String label, TextEditingController controller,
+      {bool isEmail = false, bool isNumber = false}) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(labelText: label),
-      keyboardType: isEmail ? TextInputType.emailAddress : (isNumber ? TextInputType.phone : TextInputType.text),
+      keyboardType: isEmail
+          ? TextInputType.emailAddress
+          : (isNumber ? TextInputType.phone : TextInputType.text),
       validator: (value) => value!.isEmpty ? "Enter $label" : null,
     );
   }
