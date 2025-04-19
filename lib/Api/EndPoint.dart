@@ -1,8 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EndPoint {
-  static final String baseUrl = "http://192.168.1.40:4500/api/v1";
-
+  static const String baseUrl = 'http://localhost:4500/api/v1';
   static const String confirm_dinner = "registration/confirm-dinner";
   static const String getallAttendees = 'registration';
   static const String registration = 'registration';
