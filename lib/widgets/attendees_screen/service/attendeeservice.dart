@@ -7,24 +7,29 @@ class AttendeeService {
 
   AttendeeService() : api = HttpClient();
 
+  Future<dynamic> search(String search) async {
+    try {
+      String endpoint = EndPoint.registration + '?search=' + search;
+      print(endpoint);
+      var response = await api.get(endpoint);
+
+      if (response != null && response['data'] != null) {
+        return response['data'];
+      } else {
+        print("Error: Response does not contain 'data' key or is invalid");
+        throw Exception("! no data !");
+      }
+    } catch (e) {
+      throw Exception(
+          "! Serveur inaccessible. Vérifiez votre connexion !" + e.toString());
+    }
+  }
+
   Future<Map<String, dynamic>> getAttendees() async {
     try {
       String endpoint = EndPoint.getallAttendees;
-      // if (search.isNotEmpty) {
-      //   endpoint += "/verify-ticketId/" + search;
-      // }
 
-      // Fetch data from API
       var response = await api.get(endpoint);
-
-      // Return the list of attendees
-
-      // if (search.isNotEmpty) {
-      //   Map<String, dynamic> p = {};
-
-      //   p = response;
-      //   return p;
-      // }
 
       if (response != null && response['data'] != null) {
         return response;
@@ -33,7 +38,8 @@ class AttendeeService {
         throw Exception("! no data !");
       }
     } catch (e) {
-      throw Exception("! Serveur inaccessible. Vérifiez votre connexion !" +e.toString());
+      throw Exception(
+          "! Serveur inaccessible. Vérifiez votre connexion !" + e.toString());
     }
   }
 }

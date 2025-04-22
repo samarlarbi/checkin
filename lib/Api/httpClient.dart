@@ -1,5 +1,6 @@
 import 'dart:convert'; // For JSON decoding
 import 'package:checkin/Api/EndPoint.dart';
+import 'package:checkin/utils/tokenprovider.dart';
 import 'package:http/http.dart' as http;
 
 class HttpClient {
@@ -9,15 +10,18 @@ class HttpClient {
   // GET request
   Future<dynamic> get(String endpoint, {Map<String, String>? headers}) async {
     try {
+      var token = await AccessTokenProvider.getToken();
       final Uri url = Uri.parse('$baseUrl/$endpoint');
+      print('$baseUrl/$endpoint');
       final response = await http.get(url, headers: {
         ...?headers,
         "Content-Type": "application/json",
-        "Authorization": ApiKey.token,
+        "Authorization": "Bearer " + (token ?? ''),
       }).timeout(Duration(seconds: timeoutDuration));
 
       return _handleResponse(response);
     } catch (e) {
+      print(e);
       rethrow; // Propagate the error for further handling
     }
   }
@@ -27,15 +31,18 @@ class HttpClient {
       {Map<String, String>? headers, Object? body}) async {
     print(body);
     try {
+      var token = await AccessTokenProvider.getToken();
+
       final Uri url = Uri.parse('$baseUrl/$endpoint');
       print(url);
+      print(jsonEncode(body));
       final response = await http
           .post(url,
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": ApiKey.token,
+                "Authorization": "Bearer " + (token ?? ''),
               },
-              body: body)
+              body: jsonEncode(body))
           .timeout(Duration(seconds: timeoutDuration));
 
       return _handleResponse(response);
@@ -48,6 +55,8 @@ class HttpClient {
   Future<dynamic> put(String endpoint,
       {Map<String, String>? headers, Object? body}) async {
     try {
+      var token = await AccessTokenProvider.getToken();
+
       final Uri url = Uri.parse('$baseUrl/$endpoint');
       final response = await http
           .put(url, headers: headers, body: body)
@@ -78,12 +87,14 @@ class HttpClient {
   Future<dynamic> patch(String endpoint,
       {Map<String, String>? headers, Object? body}) async {
     try {
+      var token = await AccessTokenProvider.getToken();
+
       final Uri url = Uri.parse('$baseUrl/$endpoint');
       final response = await http
           .patch(url,
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": ApiKey.token,
+                "Authorization": "Bearer " + (token ?? ''),
               },
               body: jsonEncode(body))
           .timeout(Duration(seconds: timeoutDuration));
@@ -97,15 +108,25 @@ class HttpClient {
   // A helper function to handle the response
   dynamic _handleResponse(http.Response response) {
     // If the status code is 200, decode the JSON data.
-    if (response.statusCode == 200) {
+    if (response.statusCode < 300) {
       try {
         return json.decode(response.body); // Assuming the response body is JSON
       } catch (e) {
-        throw Exception('Failed to parse response: $e');
+        return response.body; // Return the raw body if JSON decoding fails
       }
+    } else if (response.statusCode == 401) {
+      // Handle unauthorized access (401)
+      throw Exception('Unauthorized access. Please check your credentials.');
+    } else if (response.statusCode == 403) {
+      // Handle forbidden access (403)
+      throw Exception(
+          'Forbidden access. You do not have permission to access this resource.');
+    } else if (response.statusCode == 404) {
+      // Handle not found (404)
+      throw Exception('Resource not found.');
     } else {
       // Handle other status codes (4xx, 5xx)
-      throw Exception('Request failed with status: ${response.statusCode}');
+      throw Exception('Request failed with status: ${response.statusCode} ');
     }
   }
 }

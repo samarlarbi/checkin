@@ -49,7 +49,7 @@ class MyTable extends StatelessWidget {
             trailing: IconButton(
               icon: Icon(Icons.keyboard_double_arrow_right_rounded),
               onPressed: () {
-                Navigator.popAndPushNamed(
+                Navigator.pushNamed(
                   context,
                   '/myTicketView', // Your route name
                   arguments: {

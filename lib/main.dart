@@ -1,15 +1,39 @@
 import 'package:checkin/utils/colors.dart';
-import 'package:checkin/widgets/Scan_Page/scanner.dart';
+import 'package:checkin/utils/tokenprovider.dart';
 import 'package:checkin/widgets/Scan_Page/view/ScanPage.dart';
 import 'package:checkin/widgets/addAttendee/view/AddAttendeeView.dart';
 import 'package:checkin/widgets/attendees_screen/view/invitationsPage.dart';
+import 'package:checkin/widgets/login/view/loginScreen.dart';
 import 'package:checkin/widgets/statistics_Page/view/statisticsView.dart';
 import 'package:checkin/widgets/ticket_page/view/ticketPage.dart';
 import 'package:circle_nav_bar/circle_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'widgets/editAttendee/view/EditAttendeeView.dart';
+
+void main() async {
+  await dotenv.load(fileName: ".env");
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPreferences first
+
+  // Then initialize your token provider
+  final accessTokenProvider = await AccessTokenProvider();
+  await accessTokenProvider.initialize();
+  print(accessTokenProvider.accessToken);
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => accessTokenProvider),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,20 +41,31 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accessToken =
+        Provider.of<AccessTokenProvider>(context, listen: false).accessToken;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: accessToken == null
+          ? const LoginScreen()
+          : const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
+        '/home': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+        '/login': (context) => const LoginScreen(),
         '/scanner': (context) => const ScannerScreen(),
         '/invitations': (context) => const Invitations(),
         '/statistics': (context) => const StaticsView(),
         '/addattendee': (context) => AddAttendeeView(),
+        '/editattendee': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>?;
+          return EditAttendeeView(ticketno: args?['ticketno'] ?? '');
+        },
         '/myTicketView': (context) {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>?;
           return MyTicketView(ticketno: args?['ticketno'] ?? '');
-        }, 
+        },
       },
     );
   }
@@ -46,7 +81,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _activeIndex = 0;
+  int _activeIndex = 1;
   final List<Widget> _pages = [
     Invitations(),
     ScannerScreen(),

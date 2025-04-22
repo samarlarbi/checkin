@@ -1,6 +1,5 @@
 import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/Api/httpClient.dart';
-import 'package:checkin/models/attendee.dart';
 
 class AddAttendeeService {
   final HttpClient api;

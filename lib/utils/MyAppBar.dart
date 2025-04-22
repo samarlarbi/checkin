@@ -14,6 +14,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       actions: action,
+      
       leading: leading
           ? IconButton(
               onPressed: () => Navigator.popAndPushNamed(context, "/"),
@@ -26,8 +27,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: const TextStyle(color: Color.fromARGB(255, 69, 69, 69)),
       ),
       centerTitle: true,
-      backgroundColor: Background,
+      backgroundColor: Colors.white,
       elevation: 0,
+      
     );
   }
 

@@ -1,7 +1,14 @@
+import 'package:checkin/utils/tokenprovider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 class EndPoint {
-  static const String baseUrl = 'http://localhost:4500/api/v1';
+  static final String baseUrl = dotenv.env['BASE_URL'] ?? 'http://';
+
+  // static const String baseUrl = 'http://
+  static const String login = 'auth/login';
+
   static const String confirm_dinner = "registration/confirm-dinner";
   static const String getallAttendees = 'registration';
   static const String registration = 'registration';
@@ -23,10 +30,6 @@ class ApiKey {
   static String apiKey = 'Authorization';
   static String apiValue = 'Basic 5885deea-f4c3-c5a-b8c-7e1148a33a10';
   // ignore: prefer_interpolation_to_compose_strings
-  static String token =
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RlIjoiMTIzNDU2Nzg5IiwiaWF0IjoxNzM5MzczODc5fQ.oeAh7EoHx3APxKhrk_mNxwwlCYFifidxcA9xogGDZFA";
-
-  static String Attendeeid = "id";
 
   static String email = "email";
   static String password = "password";

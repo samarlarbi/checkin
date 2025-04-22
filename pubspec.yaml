@@ -53,6 +53,10 @@ dependencies:
   get: ^4.6.5
   circle_nav_bar: ^2.2.0
   flutter_native_splash: ^2.3.7
+  shared_preferences: ^2.2.2
+  provider: ^6.1.4
+  open_file: ^3.3.2
+  share_plus: ^7.2.2
 
 
 dev_dependencies:
@@ -88,6 +92,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/mic.png
     - assets/homeimge.png
     - assets/themaze.jpg

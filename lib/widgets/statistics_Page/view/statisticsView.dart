@@ -1,6 +1,11 @@
+import 'dart:math';
+
+import 'package:checkin/utils/tokenprovider.dart';
+import 'package:checkin/widgets/statistics_Page/controller/controller.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/web_symbols_icons.dart';
+import 'package:provider/provider.dart';
 import '../../../utils/MyAppBar.dart';
 import '../../../utils/colors.dart';
 import '../../addAttendee/controller/addattendeecontroller.dart';
@@ -14,106 +19,105 @@ class StaticsView extends StatefulWidget {
 }
 
 class _StaticsViewState extends State<StaticsView> {
-  final AttendeeController _controller = AttendeeController();
-  final AddAttendeeController _controller2 = AddAttendeeController();
-  String errorMessage = ""; // Track errors to display in UI
-
+  String errorMessage = "";
   Future<void>? _checkinFuture;
-
   List<Map<String, dynamic>> legends = [];
-
   List<Map<String, dynamic>> statics = [];
+  final StatisticsController controller = StatisticsController();
+  final Random _random = Random();
 
   @override
   void initState() {
     super.initState();
-    _checkinFuture = fetchAttendees();
+    _checkinFuture = _fetchStatistics();
   }
 
-  Future<void> fetchAttendees({String search = ""}) async {
-    try {
-      final response = await _controller.fetchAttendees();
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text("Are you sure you want to logout?"),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('yess'),
+              onPressed: () {
+                Logout(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-      await _controller2.getForm();
+  Future<void> Logout(BuildContext context) async {
+    try {
+      await Provider.of<AccessTokenProvider>(context, listen: false)
+          .clearTokens();
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      _showErrorDialog(context, "An error occurred: $e");
+    }
+  }
+
+  Future<void> _fetchStatistics() async {
+    try {
+      await controller.fetchStatistics();
+      if (!mounted) return;
 
       setState(() {
+        errorMessage = controller.errorMessage;
+
+        // Initialize legends with proper typing
+        legends = (controller.statistics["workshops"] as List)
+            .map<Map<String, dynamic>>((workshop) {
+          final hue = _random.nextDouble() * 360;
+          return {
+            "text": workshop["name"] as String,
+            "value": workshop["attendeesCount"] as int,
+            "color": HSLColor.fromAHSL(1.0, hue, 0.7, 0.8).toColor(),
+            "workshop": workshop,
+          };
+        }).toList();
+
+        // Initialize statics with proper typing
         statics = [
           {
-            "titre": "Attendees",
-            "icon": Icons.people_alt_rounded,
-            "value": _controller.totalItems
+            "icon": Icons.people,
+            "value": controller.statistics["general"]["totalAttendees"] as int,
+            "title": "Attendees",
           },
           {
-            "titre": "checked",
-            "icon": Icons.check_circle_outlined,
-            "value": _controller.attendees.where((attendee) {
-              return attendee["ticket"]["done"] == true;
-            }).length
+            "icon": Icons.done_outline_rounded,
+            "value":
+                controller.statistics["general"]["presentAttendees"] as int,
+            "title": "Checked In",
           },
           {
-            "titre": "Teams",
             "icon": Icons.groups_2,
-            "value": _controller2.form["teams"].length
+            "value": controller.statistics["general"]["totalTeams"] as int,
+            "title": "Teams",
           },
         ];
       });
-      Map<String, int> workshopAttendance = {};
-
-      for (var attendee in _controller.attendees) {
-        for (var workshopEntry in attendee["ticket"]["workshops"]) {
-          String workshopName = workshopEntry["workshop"]["name"];
-          workshopAttendance[workshopName] = 0;
-        }
-      }
-
-      for (var attendee in _controller.attendees) {
-        for (var workshopEntry in attendee["ticket"]["workshops"]) {
-          if (workshopEntry["hasAttended"] == true) {
-            String workshopName = workshopEntry["workshop"]["name"];
-            workshopAttendance[workshopName] =
-                (workshopAttendance[workshopName] ?? 0) + 1;
-          }
-        }
-      }
-
-      workshopAttendance.forEach((workshop, count) {
-        print("$workshop: $count attendees checked in");
-      });
-
-      List<Color> workshopColors = [
-        Color.fromARGB(255, 126, 185, 232),
-        Color.fromARGB(255, 255, 180, 100),
-        Color.fromARGB(255, 150, 232, 126),
-        Color.fromARGB(255, 232, 126, 180),
-      ];
-
-      setState(() {
-        int colorIndex = 0;
-        int x = 0;
-
-        legends.add({
-          "color": Colors.grey,
-          "text": "Not Checked",
-          "value": _controller.attendees.length - x
-        });
-
-        legends.addAll(workshopAttendance.entries.map((entry) {
-          x = x + entry.value;
-          return {
-            "color": workshopColors[colorIndex++ % workshopColors.length],
-            "text": entry.key.split(":")[0].trim(),
-            "value": entry.value
-          };
-        }).toList());
-      });
-
-      return response;
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _checkinFuture = null;
-        errorMessage = 'Failed to get data';
+        errorMessage = e.toString();
       });
-      print("Error: $e");
     }
   }
 
@@ -124,105 +128,82 @@ class _StaticsViewState extends State<StaticsView> {
       appBar: MyAppBar(
         title: "Statistics",
         leading: false,
+        action: [
+          IconButton(
+            icon: const Icon(Icons.logout , color: Colors.black),
+            onPressed: () {
+              _showErrorDialog(context, "Are you sure you want to logout?");
+            },
+          ),
+        ],
       ),
       body: FutureBuilder(
         future: _checkinFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError || errorMessage.isNotEmpty) {
             return Center(
-                child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline,
-                      color: const Color.fromARGB(255, 108, 106, 106),
-                      size: 50),
-                  const SizedBox(height: 10),
-                  Text(
-                    errorMessage.isNotEmpty
-                        ? errorMessage
-                        : 'Error: ${snapshot.error}',
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 108, 106, 106),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        color: Color.fromARGB(255, 108, 106, 106), size: 50),
+                    const SizedBox(height: 10),
+                    Text(
+                      errorMessage.isNotEmpty
+                          ? errorMessage
+                          : 'Error: ${snapshot.error}',
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 108, 106, 106),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-            ));
+            );
           } else {
             return Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 50),
-                        SizedBox(
-                          height: 150,
-                          child: PieChart(
-                            PieChartData(
-                              sections: _chartSections(),
-                              centerSpaceRadius: 60,
-                              sectionsSpace: 2,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Chart Container
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: PieChart(
+                              PieChartData(
+                                sections: _chartSections(),
+                                centerSpaceRadius: 60,
+                                sectionsSpace: 2,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 55),
-                        _buildLegend(), // Display the legend under the chart
-                      ],
+                          const SizedBox(height: 20),
+                          _buildLegend(),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  _statics(),
-                  SizedBox(height: 10),
-                  ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    tileColor: Colors.white,
-                    leading: Icon(
-                      Icons.lunch_dining,
-                      size: 30,
-                      color: Color.fromARGB(255, 223, 96, 96),
-                    ),
-                    title: Text('Had Lunch'),
-                    trailing: Text(_controller.attendees
-                        .where((attendee) {
-                          return attendee["ticket"]["hadLunch"] == true;
-                        })
-                        .length
-                        .toString()),
-                  ),
-                  SizedBox(height: 10),
-                  ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    tileColor: Colors.white,
-                    leading: Icon(
-                      Icons.dinner_dining_sharp,
-                      size: 30,
-                      color: Colors.orange,
-                    ),
-                    title: Text('Had Dinner'),
-                    trailing: Text(_controller.attendees
-                        .where((attendee) {
-                          return attendee["ticket"]["hadMeal"] == true;
-                        })
-                        .length
-                        .toString()),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    // Stats Cards
+                    _buildStatsCards(),
+                    const SizedBox(height: 20),
+                    // Workshop Attendees List
+                    _buildWorkshopsList(),
+                  ],
+                ),
               ),
             );
           }
@@ -232,90 +213,267 @@ class _StaticsViewState extends State<StaticsView> {
   }
 
   List<PieChartSectionData> _chartSections() {
-    double total = legends.fold(0, (sum, entry) => sum + entry["value"]);
-    return legends.map((legend) {
-      return PieChartSectionData(
-        color: legend["color"],
-        value: (legend["value"] / total) * 100,
-        titleStyle: TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Poppins'),
-        title: ((legend["value"] / total) * 100).toStringAsFixed(2) + " %",
-        radius: 50,
+    if (legends.isEmpty) return [];
+
+    final totalAttendees =
+        controller.statistics["general"]["totalAttendees"] as int;
+    if (totalAttendees == 0) return [];
+
+    final checkedInTotal =
+        legends.fold<int>(0, (sum, legend) => sum + (legend["value"] as int));
+    final uncheckedAttendees = totalAttendees - checkedInTotal;
+
+    final sections = <PieChartSectionData>[];
+
+    for (final legend in legends) {
+      final percentage = (legend["value"] as int) / totalAttendees * 100;
+      sections.add(
+        PieChartSectionData(
+          color: legend["color"] as Color,
+          value: percentage,
+          title: percentage >= 5 ? '${percentage.toStringAsFixed(1)}%' : '',
+          titleStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            fontFamily: 'Poppins',
+          ),
+          radius: 50,
+        ),
       );
-    }).toList();
+    }
+
+    if (uncheckedAttendees > 0) {
+      final uncheckedPercentage = uncheckedAttendees / totalAttendees * 100;
+      sections.add(
+        PieChartSectionData(
+          color: Colors.grey[400]!,
+          value: uncheckedPercentage,
+          title: uncheckedPercentage >= 5
+              ? '${uncheckedPercentage.toStringAsFixed(1)}%'
+              : '',
+          titleStyle: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, fontFamily: 'Poppins'),
+          radius: 50,
+        ),
+      );
+    }
+
+    return sections;
   }
 
   Widget _buildLegend() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: legends
-          .map(
-            (legend) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 7),
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  SizedBox(width: 3),
-                  Container(
-                    width: 15,
-                    height: 15,
-                    decoration: BoxDecoration(
-                      color: legend["color"],
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  Text(
-                    legend["text"],
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
+    final totalAttendees =
+        controller.statistics["general"]["totalAttendees"] as int;
+    final checkedInTotal =
+        legends.fold<int>(0, (sum, legend) => sum + (legend["value"] as int));
+    final uncheckedAttendees = totalAttendees - checkedInTotal;
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        ...legends.map((legend) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: legend["color"] as Color,
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
-          )
-          .toList(),
+              const SizedBox(width: 6),
+              SizedBox(
+                width: 80,
+                child: Text(
+                  legend["text"] as String,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+        if (uncheckedAttendees > 0)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              const SizedBox(
+                width: 80,
+                child: Text(
+                  "Not Checked In",
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 
-  Widget _statics() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: statics
-          .map(
-            (elem) => Container(
-              padding: EdgeInsets.all(20),
-              width: MediaQuery.of(context).size.width * 0.3,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(
-                    elem["icon"],
-                    size: 30,
-                    color: Primary,
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "+ " + elem["value"].toString(),
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    elem["titre"],
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ],
+  Widget _buildStatsCards() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = constraints.maxWidth / 3 - 10;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: statics.map((elem) {
+              return Container(
+                width: cardWidth,
+                margin: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      elem["icon"] as IconData,
+                      size: 30,
+                      color: Primary,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "+${elem["value"]}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      elem["title"] as String,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWorkshopsList() {
+    final totalAttendees =
+        controller.statistics["general"]["totalAttendees"] as int;
+    final checkedInTotal =
+        legends.fold<int>(0, (sum, w) => sum + (w["value"] as int));
+    final uncheckedAttendees = totalAttendees - checkedInTotal;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              "Workshop Attendance Details",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
               ),
             ),
-          )
-          .toList(),
+          ),
+          ...legends.map((workshop) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: workshop["color"] as Color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                title: Text(
+                  workshop["text"] as String,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                trailing: Text(
+                  "${workshop["value"]} attendees",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+          if (uncheckedAttendees > 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                title: const Text(
+                  "Not Checked In",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                trailing: Text(
+                  "$uncheckedAttendees attendees",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

@@ -4,11 +4,12 @@ import 'package:checkin/Api/EndPoint.dart';
 import 'package:checkin/utils/colors.dart';
 import 'package:checkin/utils/inputdialog.dart';
 import 'package:checkin/utils/myButton.dart';
+import 'package:checkin/utils/tokenprovider.dart';
 import 'package:checkin/widgets/Scan_Page/controller/checkincontroller.dart';
-import 'package:checkin/widgets/Scan_Page/scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:provider/provider.dart';
 import '../../ticket_page/controller/controller.dart';
 import '../../ticket_page/view/ticketPage.dart';
 
@@ -150,6 +151,47 @@ class _ScannerScreenState extends State<ScannerScreen> {
     });
   }
 
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text("Are you sure you want to logout?"),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('yess'),
+              onPressed: () {
+                Logout(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> Logout(BuildContext context) async {
+    try {
+      await Provider.of<AccessTokenProvider>(context, listen: false)
+          .clearTokens();
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      _showErrorDialog(context, "An error occurred: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     BlobController blobCtrl = BlobController();
@@ -157,19 +199,24 @@ class _ScannerScreenState extends State<ScannerScreen> {
     return Scaffold(
       backgroundColor: Background,
       appBar: AppBar(
+        leading: Image.asset(
+          "assets/mic.png",
+          height: 50,
+        ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.more_vert_outlined,
-                color: const Color.fromARGB(255, 69, 69, 69)),
-          )
+            icon: const Icon(Icons.logout, color: Colors.black),
+            onPressed: () {
+              _showErrorDialog(context, "Are you sure you want to logout?");
+            },
+          ),
         ],
         title: Text(
           "Scan QR Code",
           style: TextStyle(color: const Color.fromARGB(255, 69, 69, 69)),
         ),
         centerTitle: true,
-        backgroundColor: Background,
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: Container(

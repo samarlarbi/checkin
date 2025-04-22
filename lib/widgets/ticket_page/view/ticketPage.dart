@@ -28,6 +28,7 @@ class _MyTicketViewState extends State<MyTicketView> {
 
   Future<void>? _checkinWorkshopFuture;
   var test;
+
   @override
   void initState() {
     super.initState();
@@ -36,666 +37,365 @@ class _MyTicketViewState extends State<MyTicketView> {
 
   Future<void> fetchAttendee(String code) async {
     try {
-      print(code);
       await _controller.getTiketbyTicketno(code);
     } catch (e) {
-      print("waaaaaaaaaaa");
       setState(() {
-        errorMessage = "Error fetching attendee data , check your connection !";
+        errorMessage = "Error fetching attendee data, check your connection!";
       });
-
-      print(_controller.errorMessage);
-    } finally {}
+      debugPrint("Error fetching attendee: $e");
+    }
   }
 
   Future<void> ConfirmWorkshopCheckin(ticketno, workshopid) async {
     try {
-      var attendee =
-          await _controller.ConfirmWorkshopCheckin(ticketno, workshopid);
+      await _controller.ConfirmWorkshopCheckin(ticketno, workshopid);
     } catch (e) {
-      showAboutDialog(context: context, children: [
-        Text("Error fetching attendee data: $e"),
-      ]);
-
-      print(_controller.errorMessage);
-    } finally {}
-  }
-
-  Future<void> ConfirmDinner(ticketno) async {
-    try {
-      var attendee = await _controller.ConfirmDinner(ticketno);
-    } catch (e) {
-      showAboutDialog(context: context, children: [
-        Text("Error fetching attendee data: $e"),
-      ]);
-
-      print(_controller.errorMessage);
-    } finally {
-      _controller.notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error confirming workshop: $e")),
+      );
+      debugPrint("Error confirming workshop: $e");
     }
   }
 
   Future<void> ConfirmCheckin(ticketno) async {
     try {
-      var attendee = await _controller.ConfirmCheckin(ticketno);
+      await _controller.ConfirmCheckin(ticketno);
       setState(() {
         _controller.attendee[ApiKey.checked] =
             _controller.attendee[ApiKey.checked];
       });
-    } catch (e) {
-      showAboutDialog(context: context, children: [
-        Text("Error fetching attendee data: $e"),
-      ]);
-
-      print(_controller.errorMessage);
-    } finally {
       _controller.notifyListeners();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error confirming check-in: $e")),
+      );
+      debugPrint("Error confirming check-in: $e");
     }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildErrorWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.error_outline,
+            color: const Color.fromARGB(255, 108, 106, 106), size: 50),
+        const SizedBox(height: 10),
+        Text(
+          errorMessage.isNotEmpty ? errorMessage : 'Error loading data',
+          style: TextStyle(
+              color: const Color.fromARGB(255, 108, 106, 106),
+              fontSize: 14,
+              fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCheckinButton() {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _checkinFuture =
+              ConfirmCheckin(_controller.attendee[ApiKey.ticketno]);
+        });
+      },
+      style: ElevatedButton.styleFrom(
+          fixedSize: Size(MediaQuery.of(context).size.width, 40),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+            side: BorderSide(color: Primary, width: 1),
+          )),
+      child: FutureBuilder(
+        future: _checkinFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                color: Primary,
+                strokeWidth: 2,
+              ),
+            );
+          }
+
+          final isChecked = _controller.attendee[ApiKey.checked] ?? false;
+          return Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.center,
+            children: [
+              Text(
+                isChecked ? "Checked" : "Not checked",
+                style: TextStyle(color: Primary, fontWeight: FontWeight.w900),
+              ),
+              SizedBox(width: 5),
+              Icon(
+                isChecked
+                    ? Icons.done_outline_rounded
+                    : Icons.watch_later_outlined,
+                color: Primary,
+                size: 20,
+              )
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWorkshopItem(int index) {
+    final workshop = _controller.attendee[ApiKey.workshops][index];
+    return ListTile(
+      leading: Icon(Icons.work, color: Primary),
+      title: Text(workshop[ApiKey.workshop][ApiKey.nameworkshop]),
+      trailing: Checkbox(
+        key: Key(workshop[ApiKey.workshop][ApiKey.idworkshop].toString()),
+        fillColor: MaterialStateProperty.all(Primary),
+        checkColor: Colors.white,
+        side: BorderSide(color: Colors.grey, width: 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        value: workshop[ApiKey.hasAttended],
+        onChanged: (bool? value) {
+          setState(() {
+            workshop[ApiKey.hasAttended] = value;
+            _checkinWorkshopFuture = ConfirmWorkshopCheckin(
+              _controller.attendee[ApiKey.ticketno],
+              workshop[ApiKey.workshop][ApiKey.idworkshop],
+            ).catchError((_) {
+              setState(() => workshop[ApiKey.hasAttended] = !value!);
+            });
+          });
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    double maxwidth = MediaQuery.of(context).size.width;
+    final maxwidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 229, 229, 229),
-        body: FutureBuilder(
-          future: _checkinFuture2,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (snapshot.hasError || errorMessage.isNotEmpty) {
-              return Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline,
-                              color: const Color.fromARGB(255, 108, 106, 106),
-                              size: 50),
-                          const SizedBox(height: 10),
-                          Text(
-                            errorMessage.isNotEmpty
-                                ? errorMessage
-                                : 'Error: ${snapshot.error}',
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 108, 106, 106),
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    )
-                  ]);
-            } else {
-              return Container(
-                color: Background,
-                child: Stack(
-                  children: [
-                    ListView(
+      appBar: AppBar(
+        title: Text(
+          "Attendee",
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+        backgroundColor: Primary,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.edit, color: Colors.white),
+              onPressed: () {
+                Navigator.pushNamed(context, '/editattendee', arguments: {
+                  'ticketno': _controller.attendee[ApiKey.ticketno],
+                });
+              }),
+        ],
+      ),
+      backgroundColor: Color.fromARGB(255, 229, 229, 229),
+      body: FutureBuilder(
+        future: _checkinFuture2,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildLoadingIndicator();
+          }
+          if (snapshot.hasError || errorMessage.isNotEmpty) {
+            return _buildErrorWidget();
+          }
+          if (!_controller.attendee.containsKey("attendee")) {
+            return _buildErrorWidget();
+          }
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(10),
+            child: Container(
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: 10),
                         Container(
-                          margin: EdgeInsets.all(0),
-                          height: MediaQuery.of(context).size.height * 0.3,
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Primary,
-                          ),
-                          child: ListView(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              AppBar(
-                                leading: IconButton(
-                                  onPressed: () =>
-                                      Navigator.popAndPushNamed(context, '/'),
-                                  icon: const Icon(Icons.arrow_back),
-                                  color: Colors.white,
-                                ),
-                                title: Text(
-                                  "Attendee Information",
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                centerTitle: true,
-                                backgroundColor: Primary,
-                                elevation: 0,
-                                actions: [
-                                  IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditAttendeeView(
-                                                  ticketno: widget.ticketno),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                        Icons.mode_edit_outline_outlined),
-                                    color: Colors.white,
-                                  )
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Wrap(
-                                  alignment: WrapAlignment.spaceEvenly,
-                                  children: [
-                                    Wrap(
-                                      children: [
-                                        Container(
-                                            padding: EdgeInsets.all(5),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 2),
-                                            ),
-                                            child: Icon(
-                                              Icons.person_outline_rounded,
-                                              color: Colors.white,
-                                              size: 40,
-                                            )),
-                                        SizedBox(width: 10),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              _controller.attendee["attendee"]
-                                                  [ApiKey.AttendeeName],
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.white,
-                                              ),
-                                              textAlign: TextAlign.left,
-                                            ),
-                                            SizedBox(height: 5),
-                                            Text(
-                                              "+216 " +
-                                                  _controller
-                                                          .attendee["attendee"]
-                                                      [ApiKey.phone],
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.white,
-                                              ),
-                                              textAlign: TextAlign.left,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _checkinFuture = ConfirmCheckin(
-                                                    _controller.attendee[ApiKey
-                                                        .ticketno]); // Trigger the Future when button is pressed
-                                              });
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.white),
-                                            child: FutureBuilder(
-                                                future: _checkinFuture,
-                                                initialData: true,
-                                                builder: ((context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return Container(
-                                                      margin:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 10),
-                                                      width: 20,
-                                                      height: 20,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        color: Primary,
-                                                        strokeWidth: 2,
-                                                      ),
-                                                    );
-                                                  } else if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.done) {
-                                                    if (snapshot.hasError) {
-                                                      return Text(
-                                                        "try again",
-                                                        style: TextStyle(
-                                                            color: Colors.red,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w900),
-                                                      );
-                                                    }
-                                                    return Wrap(
-                                                      crossAxisAlignment:
-                                                          WrapCrossAlignment
-                                                              .center,
-                                                      alignment:
-                                                          WrapAlignment.center,
-                                                      children: [
-                                                        Text(
-                                                          _controller.attendee[
-                                                                  ApiKey
-                                                                      .checked]
-                                                              ? "Checked"
-                                                              : "Not checked",
-                                                          style: TextStyle(
-                                                              color: Primary,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w900),
-                                                        ),
-                                                        SizedBox(width: 5),
-                                                        _controller.attendee[
-                                                                ApiKey.checked]
-                                                            ? Icon(
-                                                                Icons
-                                                                    .done_outline_rounded,
-                                                                color: Primary,
-                                                                size: 20,
-                                                              )
-                                                            : Icon(
-                                                                Icons
-                                                                    .watch_later_outlined,
-                                                                color: Primary,
-                                                                size: 20,
-                                                              )
-                                                      ],
-                                                    );
-                                                  }
-                                                  return Wrap(
-                                                    crossAxisAlignment:
-                                                        WrapCrossAlignment
-                                                            .center,
-                                                    alignment:
-                                                        WrapAlignment.center,
-                                                    children: [
-                                                      Text(
-                                                        _controller.attendee[
-                                                                ApiKey.checked]
-                                                            ? "Checked"
-                                                            : "not checked",
-                                                        style: TextStyle(
-                                                            color: Primary,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w900),
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      _controller.attendee[
-                                                              ApiKey.checked]
-                                                          ? Icon(
-                                                              Icons
-                                                                  .done_outline_rounded,
-                                                              color: Primary,
-                                                              size: 20,
-                                                            )
-                                                          : Icon(
-                                                              Icons
-                                                                  .watch_later_outlined,
-                                                              color: Primary,
-                                                              size: 20,
-                                                            )
-                                                    ],
-                                                  );
-                                                }))),
-                                      ],
-                                    )
-                                  ],
+                              Flexible(
+                                child: Text(
+                                  _controller.attendee["attendee"]
+                                      [ApiKey.AttendeeName],
+                                  style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 85, 84, 84),
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Wrap(
-                                alignment: WrapAlignment.spaceEvenly,
-                                children: [
-                                  Container(
-                                    width: maxwidth * 0.45,
-                                    padding: EdgeInsets.all(5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "email",
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w900,
-                                          ),
-                                        ),
-                                        Text(
-                                          this._controller.attendee["attendee"]
-                                              [ApiKey.email],
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: maxwidth * 0.45,
-                                    padding: EdgeInsets.all(5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "ticket",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w900),
-                                        ),
-                                        Text(
-                                          _controller.attendee[ApiKey.ticketno]
-                                              .toString(),
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.3),
-                      child: SingleChildScrollView(
-                        child: Column(
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              padding: EdgeInsets.all(10),
-                              child: Wrap(
-                                alignment: WrapAlignment.spaceEvenly,
-                                spacing: 5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    width: maxwidth * 0.45,
-                                    padding: EdgeInsets.all(5),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "Team",
-                                          style: TextStyle(
-                                              color: Primary,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w900),
-                                        ),
-                                        Text(
-                                          this._controller.attendee["attendee"]
-                                              [ApiKey.team][ApiKey.nameteam],
-                                          style: TextStyle(
-                                              color: Primary,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "email",
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 100, 100, 100),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
                                     ),
                                   ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    width: maxwidth * 0.45,
-                                    padding: EdgeInsets.all(5),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "Rank",
-                                          style: TextStyle(
-                                              color: Primary,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w900),
-                                        ),
-                                        Text(
-                                          "0",
-                                          style: TextStyle(
-                                              color: Primary,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
+                                  SizedBox(height: 5),
+                                  Text(
+                                    _controller.attendee["attendee"]
+                                        [ApiKey.email],
+                                    style: TextStyle(
+                                      color:
+                                          const Color.fromARGB(255, 92, 92, 92),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                  SizedBox(height: 5),
                                 ],
                               ),
                             ),
                             Container(
-                              margin: EdgeInsets.all(10),
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ListTile(
-                                leading: Icon(
-                                  Icons.fastfood,
-                                  color: Colors.orange,
-                                ),
-                                title: Text("Dinner"),
-                                trailing: FutureBuilder(
-                                  future: _checkinDinnerFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Container(
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Primary,
-                                          strokeWidth: 2,
-                                        ),
-                                      );
-                                    } else if (snapshot.connectionState ==
-                                        ConnectionState.done) {
-                                      if (snapshot.hasError) {
-                                        return Text(
-                                          "try again",
-                                          style: TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.w900),
-                                        );
-                                      }
-                                    }
-                                    return Checkbox(
-                                      fillColor: MaterialStateProperty.all(
-                                          Colors.orange),
-                                      checkColor: Colors.white,
-                                      side: const BorderSide(
-                                        color: Colors.grey,
-                                        style: BorderStyle.solid,
-                                        width: 5,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      splashRadius: 52,
-                                      value:
-                                          _controller.attendee[ApiKey.hadMeal],
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          _checkinDinnerFuture =
-                                              ConfirmDinner(widget.ticketno);
-                                        });
-                                      },
-                                    );
-                                  },
-                                ),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            // Workshops Section
-                            Container(
-                              margin: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.all(10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Workshops",
+                                    "ticket",
                                     style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Primary),
+                                      color: Color.fromARGB(255, 100, 100, 100),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                    ),
                                   ),
                                   SizedBox(height: 5),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: _controller
-                                        .attendee[ApiKey.workshops].length,
-                                    itemBuilder: (context, index) {
-                                      return ListTile(
-                                        leading:
-                                            Icon(Icons.work, color: Primary),
-                                        title: Text(_controller
-                                                    .attendee[ApiKey.workshops]
-                                                [index][ApiKey.workshop]
-                                            [ApiKey.nameworkshop]),
-                                        trailing: FutureBuilder(
-                                          future: _checkinWorkshopFuture,
-                                          builder: (context, snapshot) {
-                                            if (snapshot.connectionState ==
-                                                ConnectionState.waiting) {
-                                              return Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 10),
-                                                width: 20,
-                                                height: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Primary,
-                                                  strokeWidth: 2,
-                                                ),
-                                              );
-                                            } else if (snapshot
-                                                    .connectionState ==
-                                                ConnectionState.done) {
-                                              if (snapshot.hasError) {
-                                                return Text(
-                                                  "try again",
-                                                  style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.w900),
-                                                );
-                                              }
-                                            }
-                                            return Checkbox(
-                                              key: Key(_controller
-                                                  .attendee[ApiKey.workshops]
-                                                      [index][ApiKey.workshop]
-                                                      [ApiKey.idworkshop]
-                                                  .toString()),
-                                              fillColor:
-                                                  MaterialStateProperty.all(
-                                                      Primary),
-                                              checkColor: Colors.white,
-                                              side: const BorderSide(
-                                                color: Colors.grey,
-                                                style: BorderStyle.solid,
-                                                width: 5,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              splashRadius: 52,
-                                              value: _controller.attendee[
-                                                      ApiKey.workshops][index]
-                                                  [ApiKey.hasAttended],
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  // Optimistic UI Update
-                                                  _controller.attendee[ApiKey
-                                                              .workshops][index]
-                                                          [ApiKey.hasAttended] =
-                                                      value;
-
-                                                  // Confirm Check-in
-                                                  _checkinWorkshopFuture =
-                                                      ConfirmWorkshopCheckin(
-                                                    _controller.attendee[
-                                                        ApiKey.ticketno],
-                                                    _controller.attendee[ApiKey
-                                                                    .workshops]
-                                                                [index]
-                                                            [ApiKey.workshop]
-                                                        [ApiKey.idworkshop],
-                                                  ).catchError((error) {
-                                                    setState(() {
-                                                      _controller.attendee[ApiKey
-                                                                      .workshops]
-                                                                  [index]
-                                                              [
-                                                              ApiKey
-                                                                  .hasAttended] =
-                                                          !value!;
-                                                    });
-                                                    // Show a snackbar or dialog with the error message
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                          content: Text(
-                                                              'Check-in failed. Please try again.')),
-                                                    );
-                                                  });
-                                                });
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
+                                  Text(
+                                    _controller.attendee[ApiKey.ticketno]
+                                        .toString(),
+                                    style: TextStyle(
+                                      color:
+                                          const Color.fromARGB(255, 92, 92, 92),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(height: 20),
                           ],
                         ),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            }
-          },
-        ));
+                        Container(
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceEvenly,
+                            spacing: 5,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(height: 5),
+                                    Text(
+                                      "Team",
+                                      style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 100, 100, 100),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                    Text(
+                                      _controller.attendee["attendee"]
+                                          [ApiKey.team][ApiKey.nameteam],
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 92, 92, 92),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        _buildCheckinButton(),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Workshops",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Primary,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount:
+                              _controller.attendee[ApiKey.workshops].length,
+                          itemBuilder: (context, index) {
+                            return _buildWorkshopItem(index);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

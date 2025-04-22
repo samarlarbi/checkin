@@ -2,6 +2,7 @@ import '../service/attendeeservice.dart';
 
 class AttendeeController {
   List attendees = [];
+  List filterdattendee = [];
   int totalItems = 0;
   bool isLoading = false;
   String errorMessage = "";
@@ -10,29 +11,62 @@ class AttendeeController {
 
   AttendeeController() : attendeeService = AttendeeService();
 
-// get  all attendees or search by name
-  Future<void> fetchAttendees({String search = ""}) async {
-    if (isLoading) return;
-    isLoading = true;
-    errorMessage = "";
-
+  Future<void> searchAttendees(String search) async {
     try {
-      // Fetch data from the service
-      Map<String, dynamic> jsonData = await attendeeService.getAttendees();
+      isLoading = true;
+      errorMessage = "";
 
-      if (jsonData.isEmpty) {
-        print("No more attendees found. Current attendees list: $attendees");
-        throw Exception("No attendees found");
+      final response = await attendeeService.search(search);
+
+      if (response is List) {
+        // API is returning list directly
+        filterdattendee = List.from(response);
+        if (filterdattendee.isEmpty) {
+          errorMessage = "No matching attendees found";
+        }
+      } else if (response is Map<String, dynamic>) {
+        // Handle case where API returns wrapped response
+        filterdattendee = List.from(response["data"] ?? []);
+        if (filterdattendee.isEmpty) {
+          errorMessage = "No matching attendees found";
+        }
       } else {
-        attendees = jsonData["data"].toList();
-        totalItems = jsonData["totalItems"];
+        errorMessage = "Invalid server response format";
+        filterdattendee = [];
       }
     } catch (e) {
-      errorMessage = "Error fetching data: $e";
-      print(errorMessage);
-      throw Exception("Error fetching data" + e.toString());
+      errorMessage = "Search error: ${e.toString()}";
+      filterdattendee = [];
+      print("Search error details: $e");
+      rethrow;
+    } finally {
+      isLoading = false;
     }
+  }
 
-    isLoading = false;
+  Future<void> fetchAttendees() async {
+    try {
+      isLoading = true;
+      errorMessage = ""; // Reset error message
+
+      final jsonData = await attendeeService.getAttendees();
+
+      if (jsonData.isEmpty || jsonData["data"] == null) {
+        errorMessage = "No attendees found";
+        attendees = []; // Clear attendees list
+        totalItems = 0;
+        print(errorMessage);
+        return;
+      }
+
+      attendees = List.from(jsonData["data"] ?? []);
+      totalItems = jsonData["totalItems"] ?? 0;
+    } catch (e) {
+      errorMessage = "Error fetching attendees: ${e.toString()}";
+      print(errorMessage);
+      rethrow;
+    } finally {
+      isLoading = false;
+    }
   }
 }

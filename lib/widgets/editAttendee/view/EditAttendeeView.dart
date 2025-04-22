@@ -27,7 +27,6 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
   final TextEditingController teamController = TextEditingController();
   final TextEditingController ticketNoController = TextEditingController();
   final AddAttendeeController _controller2 = AddAttendeeController();
@@ -56,7 +55,6 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
       setState(() {
         nameController.text = _controller.attendee["attendee"]['name'] ?? '';
         emailController.text = _controller.attendee["attendee"]['email'] ?? '';
-        phoneController.text = _controller.attendee["attendee"]['phone'] ?? '';
         ticketNoController.text =
             _controller.attendee['ticketNo']?.toString() ?? '';
 
@@ -99,16 +97,12 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
         "id": _controller.attendee["attendee"]['id'],
         "name": nameController.text,
         "email": emailController.text,
-        "phone": phoneController.text,
-        "ticketNo": ticketNoController.text,
         "teamId": team,
-        "facId": fac,
-        "specialization": specialization,
-        "studyLevel": studyLevel,
         "workshopIds": [firstworkshop, secondworkshop]
       };
 
       try {
+        print("Submitting form with data: $attendeeData");
         await _controller.editAttendee(attendeeData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Attendee Updated!")),
@@ -124,14 +118,7 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (context) => MyTicketView(
-                      ticketno: _controller.attendee['ticketNo'].toString(),
-                    )),
-            (Route<dynamic> route) => false,
-          ),
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),
           color: const Color.fromARGB(255, 86, 86, 86),
         ),
@@ -159,7 +146,6 @@ class _EditAttendeeViewState extends State<EditAttendeeView> {
                   children: [
                     buildTextField("Name", nameController),
                     buildTextField("Email", emailController, isEmail: true),
-                    buildTextField("Phone", phoneController, isNumber: true),
                     buildTextField("Ticket Number", ticketNoController,
                         isNumber: true),
                     DropdownButtonFormField<String>(
